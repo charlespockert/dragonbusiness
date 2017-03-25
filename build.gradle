@@ -1,0 +1,11 @@
+plugins {
+    id 'org.spongepowered.plugin' version '0.8.1'
+}
+
+group = 'io.github.charlespockert'
+version = '0.1-SNAPSHOT'
+description = 'Dragon Business 2'
+
+dependencies {
+    compile 'org.spongepowered:spongeapi:5.1.0'
+}
