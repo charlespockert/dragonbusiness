@@ -5,7 +5,11 @@ import org.spongepowered.api.service.economy.EconomyService;
 import com.google.inject.Inject;
 
 import io.github.charlespockert.commands.CommandBuilder;
+import io.github.charlespockert.data.*;
+import io.github.charlespockert.data.h2.*;
+
 import org.slf4j.Logger;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
@@ -20,8 +24,13 @@ public class DragonBusiness {
 	private EconomyService economyService;
 	private CommandBuilder commandManager;
 
-	public DragonBusiness() {
+	public DragonBusiness() throws Exception {
+		// Setup commands
 		this.commandManager = new CommandBuilder();
+		
+		Sponge.getServiceManager().setProvider(this, EmployeeDao.class, new EmployeeH2Dao());
+		Sponge.getServiceManager().setProvider(this, CompanyDao.class, new CompanyH2Dao());
+		Sponge.getServiceManager().setProvider(this, EmployeeRepository.class, new EmployeeRepository());
 	}
 
 	@Listener
@@ -39,7 +48,7 @@ public class DragonBusiness {
 		this.logger.info("Dragon Business has started");
 
 		if(this.economyService == null) {
-			this.logger.error("No economy plugin available, Dragon Business will not be activated");
+			this.logger.error("No economy plugin available, Dragon Business will not be activated. Please install an economy plugin.");
 		}
 		else {
 			this.commandManager.BuildCommands(this);

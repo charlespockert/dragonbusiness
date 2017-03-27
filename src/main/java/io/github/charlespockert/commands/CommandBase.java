@@ -14,19 +14,19 @@ import org.spongepowered.api.text.Text;
 public abstract class CommandBase implements CommandExecutor {
 
 	protected EconomyService economyService;
-		
+
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Optional<EconomyService> service = Sponge.getServiceManager().provide(EconomyService.class);
-		
+
 		if(service.isPresent()) {
 			economyService = service.get();
 		} else {
 			throw new CommandException(Text.of("No economy plugin present"));
 		}
-		
+
 		return executeCommand(src, args);
 	}
 
-	abstract CommandResult executeCommand(CommandSource src, CommandContext args) throws CommandException;
+	protected abstract CommandResult executeCommand(CommandSource src, CommandContext args) throws CommandException;
 }

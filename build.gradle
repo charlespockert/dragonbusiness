@@ -8,4 +8,5 @@ description = 'Dragon Business 2'
 
 dependencies {
     compile 'org.spongepowered:spongeapi:5.1.0'
+    compile 'org.scala-lang:scala-library:2.12.1'
 }

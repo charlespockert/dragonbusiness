@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS employee
+(player_uuid INT NOT NULL, company_id INT NOT NULL, name NVARCHAR(16));
+ALTER TABLE employee ADD PRIMARY KEY (player_uuid, company_id);
+
+CREATE TABLE IF NOT EXISTS company
+(id INT NOT NULL PRIMARY KEY IDENTITY(1,1), name NVARCHAR(60) NOT NULL);
