@@ -7,23 +7,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-
 import com.google.inject.Inject;
 
 import io.github.charlespockert.data.CompanyDao;
 import io.github.charlespockert.data.CompanyDto;
 import io.github.charlespockert.data.ConnectionManager;
-import io.github.charlespockert.data.EmployeeDto;
 
 public class CompanyH2Dao implements CompanyDao {
 
 	@Inject
-	private Logger logger;
-	
-	@Inject
 	private ConnectionManager connectionManager;
-	
+
 	@Override
 	public boolean exists(String name) throws SQLException {
 		Connection conn = connectionManager.getConnection();
@@ -149,20 +143,20 @@ public class CompanyH2Dao implements CompanyDao {
 
 	public static CompanyDto populateDto(ResultSet resultSet) throws SQLException {
 		CompanyDto dto = new CompanyDto();
-		
+
 		dto.id = resultSet.getInt("id");
 		dto.name = resultSet.getString("name");
-		
+
 		return dto;	
 	}
-	
+
 	public static CompanyDto populateSingle(PreparedStatement statement) throws SQLException {		
 		statement.execute();
 
 		ResultSet resultSet = statement.getResultSet();		
 
 		if(resultSet == null) return null;
-		
+
 		return populateDto(resultSet);
 	}
 

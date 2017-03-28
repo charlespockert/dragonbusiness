@@ -1,39 +1,29 @@
 package io.github.charlespockert.commands;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.command.spec.CommandSpec.Builder;
 import org.spongepowered.api.text.Text;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import io.github.charlespockert.DragonBusinessPlugin;
+import io.github.charlespockert.PluginLifecycle;
 import io.github.charlespockert.commands.implementations.CompanyCommand;
 import io.github.charlespockert.commands.implementations.CreateCompanyCommand;
 import io.github.charlespockert.commands.implementations.DatabaseCommand;
 import io.github.charlespockert.commands.implementations.ListCompaniesCommand;
 
-public class CommandBuilder {
+@Singleton
+public class CommandBuilder implements PluginLifecycle {
 
 	@Inject 
 	private DragonBusinessPlugin plugin;
 
 	@Inject
 	private CompanyCommand companyCommand;
-
-	public void buildCommands() throws Exception {
-		// Build parent command
-		Builder parentCommand = CommandSpec.builder()
-				.description(Text.of("Enquire on company details"))
-				.extendedDescription(Text.of("Shows help for Dragon Business"))
-				.executor(companyCommand);
-
-		buildCompanyCommands(parentCommand);
-		buildDatabaseCommands(parentCommand);
-
-		// Register parent /c or /company command
-		Sponge.getCommandManager().register(plugin, parentCommand.build(), "c", "company");	
-	}
 
 	@Inject
 	private DatabaseCommand databaseCommand;
@@ -69,4 +59,31 @@ public class CommandBuilder {
 				.executor(listCompaniesCommand)
 				.build(), "list");
 		}
+
+	@Override
+	public void start() throws Exception {
+		// Build parent command
+		Builder parentCommand = CommandSpec.builder()
+				.description(Text.of("Enquire on company details"))
+				.extendedDescription(Text.of("Shows help for Dragon Business"))
+				.executor(companyCommand);
+
+		buildCompanyCommands(parentCommand);
+		buildDatabaseCommands(parentCommand);
+
+		// Register parent /c or /company command
+		Sponge.getCommandManager().register(plugin, parentCommand.build(), "c", "company");	
+	}
+
+	@Override
+	public void shutdown() throws Exception {		
+	}
+
+	@Override
+	public void freeze() {
+	}
+
+	@Override
+	public void unfreeze() {
+	}
 }

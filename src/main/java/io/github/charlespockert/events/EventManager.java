@@ -7,11 +7,14 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.EventListener;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import io.github.charlespockert.DragonBusinessPlugin;
+import io.github.charlespockert.PluginLifecycle;
 
+@Singleton
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class EventManager {
+public class EventManager implements PluginLifecycle {
 	
 	private HashMap<Class, EventListener> map;
 	
@@ -41,5 +44,25 @@ public class EventManager {
 		for (Class key : map.keySet() ) {
 			Sponge.getEventManager().unregisterListeners(map.get(key));
 		}
+	}
+
+	@Override
+	public void start() throws Exception {
+		registerEvents();
+	}
+
+	@Override
+	public void shutdown() throws Exception {
+		
+	}
+
+	@Override
+	public void freeze() {
+		unregisterEvents();		
+	}
+
+	@Override
+	public void unfreeze() {
+		registerEvents();		
 	}
 }

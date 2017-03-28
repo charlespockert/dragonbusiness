@@ -1,5 +1,6 @@
 package io.github.charlespockert.assets;
 
+import java.net.URL;
 import java.util.Optional;
 
 import org.spongepowered.api.asset.Asset;
@@ -21,5 +22,17 @@ public class AssetManager {
 		
 		Asset asset = assetOpt.get();		
 		return asset.readString();
+	}
+	
+	public URL getURL(String fileName) throws Exception {
+		Optional<Asset> assetOpt = pluginContainer.getAsset(fileName);
+	
+		if(!assetOpt.isPresent()) {
+			throw new Exception(String.format("Asset file %1 not found", fileName));
+		}
+		
+		Asset asset = assetOpt.get();		
+		return asset.getUrl();
+		
 	}
 }

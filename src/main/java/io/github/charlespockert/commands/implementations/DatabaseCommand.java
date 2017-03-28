@@ -31,6 +31,7 @@ public class DatabaseCommand implements CommandExecutor {
 					databaseManager.deleteDatabase();
 					databaseManager.createDatabase();
 					break;
+				case "connect":
 				}
 			}
 

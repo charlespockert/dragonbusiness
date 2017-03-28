@@ -8,24 +8,32 @@ import java.sql.Types;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.service.sql.SqlService;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+import io.github.charlespockert.config.ConfigurationManager;
+import io.github.charlespockert.config.SqlConfiguration;
 import io.github.charlespockert.data.ConnectionManager;
 
+@Singleton
 public class ConnectionManagerH2 implements ConnectionManager {
 
 	SqlService sqlService;
 	DataSource dataSource;
+	SqlConfiguration sqlConfig;
+
+	@Inject
+	ConfigurationManager configurationManager;
+
+	@Inject
+	Logger logger;
 	
-	public ConnectionManagerH2() throws SQLException {	
-		sqlService = Sponge.getServiceManager().provide(SqlService.class).get();
-		dataSource = sqlService.getDataSource("jdbc:h2:~/dragonbusiness");
-	}
-		
 	public Connection getConnection() throws SQLException {
-		Connection conn = dataSource.getConnection();		
-		return conn;
+		return dataSource.getConnection();		
 	}
 
 	public PreparedStatement prepareStatement(Connection conn, String sql, Object... params) throws SQLException {
@@ -66,5 +74,27 @@ public class ConnectionManagerH2 implements ConnectionManager {
 		}
 
 		return statement;
+	}
+
+	@Override
+	public void start() throws Exception {
+		logger.info("Getting SQL service");
+		sqlService = Sponge.getServiceManager().provide(SqlService.class).get();		
+		logger.info("Getting config");
+		sqlConfig = configurationManager.loadSqlConfiguration();
+		logger.info("Connecting to " + sqlConfig.dbname);
+		dataSource = sqlService.getDataSource(String.format("jdbc:h2:~/%s;AUTO_SERVER=TRUE", sqlConfig.dbname));
+	}
+
+	@Override
+	public void shutdown() {		
+	}
+
+	@Override
+	public void freeze() {
+	}
+
+	@Override
+	public void unfreeze() {
 	}
 }

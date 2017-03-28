@@ -4,8 +4,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-
 import com.google.inject.Inject;
 
 import io.github.charlespockert.entities.Employee;
