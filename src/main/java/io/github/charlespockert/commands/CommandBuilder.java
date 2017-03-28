@@ -11,6 +11,7 @@ import io.github.charlespockert.DragonBusinessPlugin;
 import io.github.charlespockert.commands.implementations.CompanyCommand;
 import io.github.charlespockert.commands.implementations.CreateCompanyCommand;
 import io.github.charlespockert.commands.implementations.DatabaseCommand;
+import io.github.charlespockert.commands.implementations.ListCompaniesCommand;
 
 public class CommandBuilder {
 
@@ -41,7 +42,7 @@ public class CommandBuilder {
 		// Cmd def - /c database recreate
 		parent.child(CommandSpec.builder()
 				.description(Text.of("Manage Dragon Business database"))
-				.arguments(GenericArguments.string(Text.of("operation")))
+				.arguments(GenericArguments.onlyOne(GenericArguments.string(Text.of("operation"))))
 				.executor(databaseCommand)
 				.build(), "database");
 	}
@@ -49,6 +50,9 @@ public class CommandBuilder {
 	@Inject
 	private CreateCompanyCommand createCompanyCommand;
 
+	@Inject 
+	private ListCompaniesCommand listCompaniesCommand;
+	
 	private void buildCompanyCommands(Builder parent) {
 		// Cmd def - /c create <company_name>
 		parent.child(CommandSpec.builder()
@@ -57,5 +61,12 @@ public class CommandBuilder {
 				.arguments(GenericArguments.string(Text.of("companyname")))
 				.executor(createCompanyCommand)
 				.build(), "create");
-	}
+
+		// Cmd def - /c list
+		parent.child(CommandSpec.builder()
+				.description(Text.of("List all companies"))
+				.extendedDescription(Text.of("Lists all companies in the company index"))
+				.executor(listCompaniesCommand)
+				.build(), "list");
+		}
 }

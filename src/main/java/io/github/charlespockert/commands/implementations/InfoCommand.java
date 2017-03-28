@@ -41,14 +41,14 @@ public class InfoCommand implements CommandExecutor {
 					}
 					else		
 					{
-						company.printInfo(player);
+					//	company.printInfo(player);
 						return CommandResult.success();
 					}
 				} else {
 					List<Company> companies = companyRepository.getByEmployeeId(player.getUniqueId().toString());
 
 					for(Company company : companies) {
-						company.printInfo(player);
+						//company.printInfo(player);
 					}
 
 					return CommandResult.success();

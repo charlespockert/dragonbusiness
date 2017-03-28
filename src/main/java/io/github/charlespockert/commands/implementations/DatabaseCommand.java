@@ -1,6 +1,7 @@
 package io.github.charlespockert.commands.implementations;
 
 import java.sql.SQLException;
+import java.util.Optional;
 
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -18,16 +19,21 @@ public class DatabaseCommand implements CommandExecutor {
 
 	@Inject
 	private DatabaseManager databaseManager;
-	
+
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		try {
-
 			if(src instanceof ConsoleSource) {
-				databaseManager.deleteDatabase();
-				databaseManager.createDatabase();
+				String operation = args.<String>getOne("operation").get();
+
+				switch(operation) {	
+				case "recreate":
+					databaseManager.deleteDatabase();
+					databaseManager.createDatabase();
+					break;
+				}
 			}
-			
+
 			return CommandResult.success();
 		} catch(SQLException e) {
 			throw new CommandException(Text.of(e.getMessage()));

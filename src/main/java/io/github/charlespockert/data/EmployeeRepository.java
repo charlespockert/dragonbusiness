@@ -13,9 +13,6 @@ import io.github.charlespockert.entities.Employee;
 public class EmployeeRepository {
 
 	@Inject
-	private Logger logger;
-
-	@Inject
 	private EmployeeDao employeeDao;
 
 	public boolean existsEmployeeByName(String uuid) throws SQLException {

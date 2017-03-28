@@ -18,9 +18,6 @@ import io.github.charlespockert.data.EmployeeDto;
 public class EmployeeH2Dao implements EmployeeDao {
 
 	@Inject
-	private Logger logger;
-	
-	@Inject
 	private ConnectionManager connectionManager;
 
 	@Override
@@ -125,7 +122,7 @@ public class EmployeeH2Dao implements EmployeeDao {
 		Connection conn = connectionManager.getConnection();
 
 		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, "update employee set name = ?", employee.name);
+			PreparedStatement statement = connectionManager.prepareStatement(conn, "update employee set name = ? where uuid = ?", employee.name, employee.uuid);
 			statement.execute();
 		}
 		finally {

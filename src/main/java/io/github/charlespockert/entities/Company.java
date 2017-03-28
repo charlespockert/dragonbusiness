@@ -1,7 +1,5 @@
 package io.github.charlespockert.entities;
 
-import org.spongepowered.api.entity.living.player.Player;
-
 import io.github.charlespockert.data.CompanyDto;
 import io.github.charlespockert.data.common.DataReader;
 import io.github.charlespockert.data.common.DataWriter;
@@ -9,7 +7,30 @@ import io.github.charlespockert.data.common.DataWriter;
 public class Company implements DataReader<CompanyDto>, DataWriter<CompanyDto>  {
 
 	private int id;
+
+	public int getId() {
+		return this.id;
+	}
+	
+	public void setId(int id) {
+		this.id = id;
+	}
+	
 	private String name;
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public void setName (String name) {
+		this.name = name;
+	}
+	
+	private int numberOfEmployees;
+	
+	public int getNumberOfEmployees() {
+		return numberOfEmployees;
+	}
 	
 	@Override
 	public CompanyDto writeToDto() {
@@ -25,9 +46,4 @@ public class Company implements DataReader<CompanyDto>, DataWriter<CompanyDto>  
 		this.id = dto.id;
 		this.name = dto.name;
 	}
-	
-	public void printInfo(Player player) {
-		
-	}
-
 }
