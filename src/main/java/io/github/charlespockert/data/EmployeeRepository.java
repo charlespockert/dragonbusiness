@@ -4,16 +4,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spongepowered.api.Sponge;
+import org.slf4j.Logger;
+
+import com.google.inject.Inject;
+
 import io.github.charlespockert.entities.Employee;
 
 public class EmployeeRepository {
 
-	EmployeeDao employeeDao;
+	@Inject
+	private Logger logger;
 
-	public EmployeeRepository() throws Exception {
-		employeeDao = Sponge.getServiceManager().getRegistration(EmployeeDao.class).get().getProvider();
-	}
+	@Inject
+	private EmployeeDao employeeDao;
 
 	public boolean existsEmployeeByName(String uuid) throws SQLException {
 		return employeeDao.existsByName(uuid);
@@ -36,16 +39,16 @@ public class EmployeeRepository {
 		employee.readFromDto(dto);		
 		return employee;
 	}
-	
+
 	public List<Employee> getAllEmployees() throws SQLException {
 		ArrayList<Employee> employees = new ArrayList<Employee>();
-		
+
 		for(EmployeeDto dto : employeeDao.getAll()) {
 			Employee employee = new Employee();
 			employee.readFromDto(dto);					
 			employees.add(employee);
 		}
-		
+
 		return employees;
 	}
 

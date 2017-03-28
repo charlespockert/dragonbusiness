@@ -4,17 +4,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spongepowered.api.Sponge;
+import com.google.inject.Inject;
 
 import io.github.charlespockert.entities.Company;
 
 public class CompanyRepository {
 
-	CompanyDao companyDao;
-
-	public CompanyRepository() throws Exception {
-		companyDao = Sponge.getServiceManager().getRegistration(CompanyDao.class).get().getProvider();
-	}
+	@Inject
+	private CompanyDao companyDao;
 
 	public boolean existsCompany(int id) throws SQLException {
 		return companyDao.exists(id);

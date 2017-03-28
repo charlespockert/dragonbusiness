@@ -6,7 +6,7 @@ import java.util.List;
 import io.github.charlespockert.data.CompanyDao;
 import io.github.charlespockert.data.CompanyDto;
 
-public class CompanyH2Dao extends H2DataConnector implements CompanyDao {
+public class CompanyH2Dao implements CompanyDao {
 
 	@Override
 	public boolean exists(String name) throws SQLException {

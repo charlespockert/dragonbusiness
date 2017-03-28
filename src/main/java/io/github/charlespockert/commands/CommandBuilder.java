@@ -1,20 +1,61 @@
 package io.github.charlespockert.commands;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.args.GenericArguments;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.command.spec.CommandSpec.Builder;
+import org.spongepowered.api.text.Text;
 
+import com.google.inject.Inject;
+
+import io.github.charlespockert.DragonBusinessPlugin;
 import io.github.charlespockert.commands.implementations.CompanyCommand;
 import io.github.charlespockert.commands.implementations.CreateCompanyCommand;
+import io.github.charlespockert.commands.implementations.DatabaseCommand;
 
 public class CommandBuilder {
 
-	public void BuildCommands(Object plugin) throws Exception {
+	@Inject 
+	private DragonBusinessPlugin plugin;
+
+	@Inject
+	private CompanyCommand companyCommand;
+
+	public void buildCommands() throws Exception {
 		// Build parent command
-		Builder parentCommand = CompanyCommand.getCommandSpecBuilder();
+		Builder parentCommand = CommandSpec.builder()
+				.description(Text.of("Enquire on company details"))
+				.extendedDescription(Text.of("Shows help for Dragon Business"))
+				.executor(companyCommand);
 
-		// Add children
-		parentCommand.child(CreateCompanyCommand.getCommandSpec());
+		buildCompanyCommands(parentCommand);
+		buildDatabaseCommands(parentCommand);
 
-		// Register
+		// Register parent /c or /company command
 		Sponge.getCommandManager().register(plugin, parentCommand.build(), "c", "company");	
+	}
+
+	@Inject
+	private DatabaseCommand databaseCommand;
+
+	private void buildDatabaseCommands(Builder parent) {
+		// Cmd def - /c database recreate
+		parent.child(CommandSpec.builder()
+				.description(Text.of("Manage Dragon Business database"))
+				.arguments(GenericArguments.string(Text.of("operation")))
+				.executor(databaseCommand)
+				.build(), "database");
+	}
+
+	@Inject
+	private CreateCompanyCommand createCompanyCommand;
+
+	private void buildCompanyCommands(Builder parent) {
+		// Cmd def - /c create <company_name>
+		parent.child(CommandSpec.builder()
+				.description(Text.of("Create a new company"))
+				.extendedDescription(Text.of("Creates a new company making you the CEO (assuming you have enough in your account!)"))
+				.arguments(GenericArguments.string(Text.of("companyname")))
+				.executor(createCompanyCommand)
+				.build(), "create");
 	}
 }

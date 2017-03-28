@@ -11,23 +11,24 @@ import javax.sql.DataSource;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.service.sql.SqlService;
 
-public class H2DataConnector {
+import io.github.charlespockert.data.ConnectionManager;
 
-	private static SqlService sql;
+public class ConnectionManagerH2 implements ConnectionManager {
 
-	protected static DataSource getDataSource(String jdbcUrl) throws SQLException {
-		if (sql == null) {
-			sql = Sponge.getServiceManager().provide(SqlService.class).get();
-		}
-		return sql.getDataSource(jdbcUrl);
+	SqlService sqlService;
+	DataSource dataSource;
+	
+	public ConnectionManagerH2() throws SQLException {	
+		sqlService = Sponge.getServiceManager().provide(SqlService.class).get();
+		dataSource = sqlService.getDataSource("jdbc:h2:~/dragonbusiness");
 	}
-
-	protected static Connection getConnection() throws SQLException {
-		Connection conn = getDataSource("jdbc:h2:dragonbusiness.db").getConnection();
+		
+	public Connection getConnection() throws SQLException {
+		Connection conn = dataSource.getConnection();		
 		return conn;
 	}
 
-	protected static PreparedStatement prepareStatement(Connection conn, String sql, Object... params) throws SQLException {
+	public PreparedStatement prepareStatement(Connection conn, String sql, Object... params) throws SQLException {
 		PreparedStatement statement = conn.prepareStatement(sql);
 		ParameterMetaData metadata = statement.getParameterMetaData();
 		int ix = 1;
@@ -40,6 +41,14 @@ public class H2DataConnector {
 			case Types.INTEGER:
 			case Types.SMALLINT:
 				statement.setInt(ix, (int)param);
+				break;
+			case Types.DOUBLE:
+			case Types.NUMERIC:
+				statement.setDouble(ix, (double)param);
+				break;
+			case Types.DECIMAL:
+			case Types.FLOAT:
+				statement.setFloat(ix, (float)param);
 				break;
 			case Types.VARCHAR:
 			case Types.NVARCHAR:
@@ -55,7 +64,7 @@ public class H2DataConnector {
 
 			ix ++;
 		}
-		
+
 		return statement;
 	}
 }

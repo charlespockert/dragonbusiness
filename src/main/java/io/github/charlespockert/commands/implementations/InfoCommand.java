@@ -4,39 +4,26 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.command.spec.CommandSpec;
-import org.spongepowered.api.command.spec.CommandSpec.Builder;
+import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
-import io.github.charlespockert.commands.CommandBase;
+import com.google.inject.Inject;
+
 import io.github.charlespockert.data.CompanyRepository;
 import io.github.charlespockert.entities.Company;
 
-public class InfoCommand extends CommandBase {
+public class InfoCommand implements CommandExecutor {
 
+	@Inject
 	private CompanyRepository companyRepository;
 
-	public static Builder getCommandSpecBuilder() {
-		return CommandSpec.builder()
-				.description(Text.of("Show company information"))
-				.extendedDescription(Text.of("Returns full details for any given company"))
-				.arguments(GenericArguments.optional(GenericArguments.string(Text.of("companyname"))))
-				.executor(new InfoCommand());
-	}
-
-	public InfoCommand() {
-		companyRepository = Sponge.getServiceManager().getRegistration(CompanyRepository.class).get().getProvider();
-	}
-
 	@Override
-	protected CommandResult executeCommand(CommandSource src, CommandContext args) throws CommandException {
+	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Optional<String> companynameOpt = args.<String>getOne("companyname");
 
 		if(src instanceof Player) {
