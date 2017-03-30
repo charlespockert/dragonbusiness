@@ -6,6 +6,18 @@ group = 'io.github.charlespockert'
 version = '0.1-SNAPSHOT'
 description = 'Dragon Business 2'
 
+configurations {
+    extralibs
+}
+
 dependencies {
     compile 'org.spongepowered:spongeapi:5.1.0'
+    compile 'org.antlr:ST4:4.0.8'
+    extralibs 'org.antlr:ST4:4.0.8'
+}
+
+jar {
+    from {
+            configurations.extralibs.collect { it.isDirectory() ? it : zipTree(it) }
+        }
 }

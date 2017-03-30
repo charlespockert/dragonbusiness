@@ -15,8 +15,8 @@ public class DragonBusinessModule implements Module {
 	public void configure(Binder binder) {		
 
 		// Connections/db
-		binder.bind(ConnectionManager.class).to(ConnectionManagerH2.class).asEagerSingleton();
-		binder.bind(DatabaseManager.class).to(DatabaseManagerH2.class).asEagerSingleton();
+		binder.bind(ConnectionManager.class).to(ConnectionManagerH2.class);
+		binder.bind(DatabaseManager.class).to(DatabaseManagerH2.class);
 
 		// Dao
 		binder.bind(EmployeeDao.class).to(EmployeeH2Dao.class);

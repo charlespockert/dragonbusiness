@@ -16,15 +16,16 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import io.github.charlespockert.config.ConfigurationManager;
-import io.github.charlespockert.config.SqlConfiguration;
+import io.github.charlespockert.config.ConfigurationContainer;
 import io.github.charlespockert.data.ConnectionManager;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 @Singleton
 public class ConnectionManagerH2 implements ConnectionManager {
 
 	SqlService sqlService;
 	DataSource dataSource;
-	SqlConfiguration sqlConfig;
+	CommentedConfigurationNode sqlConfig;
 
 	@Inject
 	ConfigurationManager configurationManager;
@@ -78,12 +79,9 @@ public class ConnectionManagerH2 implements ConnectionManager {
 
 	@Override
 	public void start() throws Exception {
-		logger.info("Getting SQL service");
 		sqlService = Sponge.getServiceManager().provide(SqlService.class).get();		
-		logger.info("Getting config");
-		sqlConfig = configurationManager.loadSqlConfiguration();
-		logger.info("Connecting to " + sqlConfig.dbname);
-		dataSource = sqlService.getDataSource(String.format("jdbc:h2:~/%s;AUTO_SERVER=TRUE", sqlConfig.dbname));
+		sqlConfig = configurationManager.getConfiguration(ConfigurationManager.SQL_CONFIG);
+		dataSource = sqlService.getDataSource(String.format("jdbc:h2:~/%s;AUTO_SERVER=TRUE", sqlConfig.getNode("database", "dbname").getString()));
 	}
 
 	@Override

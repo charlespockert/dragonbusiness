@@ -12,20 +12,21 @@ import org.spongepowered.api.text.Text;
 import com.google.inject.Inject;
 
 import io.github.charlespockert.data.CompanyRepository;
-import io.github.charlespockert.formatting.CompanyListFormatter;
-import io.github.charlespockert.formatting.Formatter;
+import io.github.charlespockert.formatting.CompanyMessageFormatter;
 
 public class ListCompaniesCommand implements CommandExecutor {
 
 	@Inject 
 	private CompanyRepository companyRepository;
 	
+	@Inject 
+	private CompanyMessageFormatter companyFormatter;
+	
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		
 		try {
-			Formatter formatter = new CompanyListFormatter(companyRepository.getAllCompanies());
-			formatter.format(src);
+			companyFormatter.formatCompanyList(src, companyRepository.getAllCompanies());
 		} catch (SQLException e) {
 			throw new CommandException(Text.of(e.getMessage()));
 		}
