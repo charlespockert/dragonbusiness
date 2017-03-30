@@ -8,6 +8,6 @@ Some kind of useful description...
 
 ## Community
 
-[Main Github](http://github.com/dragontechmc)
-[Website](http://dragontechmc.com)
-[Discord](https://discord.gg/Q6mzRPU)
+[Main Github](http://github.com/dragontechmc)  
+[Website](http://dragontechmc.com)  
+[Discord](https://discord.gg/Q6mzRPU)  
