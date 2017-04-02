@@ -17,7 +17,7 @@ public class AssetManager {
 		Optional<Asset> assetOpt = pluginContainer.getAsset(fileName);
 		
 		if(!assetOpt.isPresent()) {
-			throw new Exception(String.format("Asset file %1 not found", fileName));
+			throw new Exception(String.format("Asset file %s not found", fileName));
 		}
 		
 		Asset asset = assetOpt.get();		
@@ -28,7 +28,7 @@ public class AssetManager {
 		Optional<Asset> assetOpt = pluginContainer.getAsset(fileName);
 	
 		if(!assetOpt.isPresent()) {
-			throw new Exception(String.format("Asset file %1 not found", fileName));
+			throw new Exception(String.format("Asset file %s not found", fileName));
 		}
 		
 		Asset asset = assetOpt.get();		

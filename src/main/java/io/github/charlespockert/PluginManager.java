@@ -35,7 +35,7 @@ public class PluginManager implements PluginLifecycle {
 		// Order is important so we are using LinkedHashSet.
 		components = new LinkedHashSet<PluginLifecycle>();
 
-		// Manager registers the DB so that must be first, database next then the rest
+		// Configuration is required first, then connections, then DB then the rest...
 		components.add((PluginLifecycle) injector.getInstance(ConfigurationManager.class));
 		components.add((PluginLifecycle) injector.getInstance(ConnectionManager.class));
 		components.add((PluginLifecycle) injector.getInstance(DatabaseManager.class));

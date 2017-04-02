@@ -39,7 +39,7 @@ public class ConfigurationManager implements PluginLifecycle {
 		configurations = new HashMap<String, CommentedConfigurationNode>();
 	}
 
-	private void loadConfiguration(String key, String fileName) throws Exception {	
+	public void loadConfiguration(String key, String fileName) throws Exception {	
 		Path filePath = configDirectory.resolve(fileName);
 		
 		boolean requiresSave = false;
@@ -62,7 +62,7 @@ public class ConfigurationManager implements PluginLifecycle {
 		}
 	}
 
-	private void saveConfiguration(String key, String fileName) throws IOException {
+	public void saveConfiguration(String key, String fileName) throws IOException {
 		Path filePath = configDirectory.resolve(fileName);
 
 		logger.info("Setting file path on save to: " + filePath.toString());

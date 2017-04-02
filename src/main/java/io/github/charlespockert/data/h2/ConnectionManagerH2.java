@@ -5,7 +5,6 @@ import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
-
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
@@ -16,7 +15,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import io.github.charlespockert.config.ConfigurationManager;
-import io.github.charlespockert.config.ConfigurationContainer;
 import io.github.charlespockert.data.ConnectionManager;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
@@ -32,7 +30,7 @@ public class ConnectionManagerH2 implements ConnectionManager {
 
 	@Inject
 	Logger logger;
-	
+
 	public Connection getConnection() throws SQLException {
 		return dataSource.getConnection();		
 	}
@@ -43,7 +41,10 @@ public class ConnectionManagerH2 implements ConnectionManager {
 		int ix = 1;
 
 		for(Object param : params) {
+
 			int type = metadata.getParameterType(ix);
+
+			logger.info("Value " + param.toString() + " matching param type " + type);
 
 			switch(type) {
 			case Types.BIGINT:
@@ -67,12 +68,17 @@ public class ConnectionManagerH2 implements ConnectionManager {
 			case Types.CHAR:
 				statement.setString(ix, (String)param);
 				break;
+			case Types.VARBINARY:
+				statement.setBytes(ix, (byte[])param);
+				break;
 			default:
 				throw new SQLException("Unknown java.sql.Type type ID: " + type);
 			}
 
 			ix ++;
 		}
+
+		logger.info("Executing query: " + statement.toString());
 
 		return statement;
 	}

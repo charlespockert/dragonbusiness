@@ -15,6 +15,7 @@ import io.github.charlespockert.commands.implementations.CompanyCommand;
 import io.github.charlespockert.commands.implementations.CreateCompanyCommand;
 import io.github.charlespockert.commands.implementations.DatabaseCommand;
 import io.github.charlespockert.commands.implementations.ListCompaniesCommand;
+import io.github.charlespockert.commands.implementations.ReloadConfigCommand;
 
 @Singleton
 public class CommandBuilder implements PluginLifecycle {
@@ -37,6 +38,17 @@ public class CommandBuilder implements PluginLifecycle {
 				.build(), "database");
 	}
 
+	@Inject
+	private ReloadConfigCommand reloadConfigCommand;
+	
+	private void buildAdminCommands(Builder parent) {
+		parent.child(CommandSpec.builder()
+				.description(Text.of("Reload configuration files (messages etc)"))
+				.executor(reloadConfigCommand)
+				.build(), 
+				"reloadconfig");
+	}
+	
 	@Inject
 	private CreateCompanyCommand createCompanyCommand;
 
@@ -69,6 +81,7 @@ public class CommandBuilder implements PluginLifecycle {
 				.executor(companyCommand);
 
 		buildCompanyCommands(parentCommand);
+		buildAdminCommands(parentCommand);
 		buildDatabaseCommands(parentCommand);
 
 		// Register parent /c or /company command

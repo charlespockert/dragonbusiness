@@ -14,13 +14,13 @@ import org.spongepowered.api.text.Text;
 
 import com.google.inject.Inject;
 
-import io.github.charlespockert.data.CompanyRepository;
+import io.github.charlespockert.data.BusinessRepository;
 import io.github.charlespockert.entities.Company;
 
 public class InfoCommand implements CommandExecutor {
 
 	@Inject
-	private CompanyRepository companyRepository;
+	private BusinessRepository businessRepository;
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
@@ -32,7 +32,7 @@ public class InfoCommand implements CommandExecutor {
 			try {
 
 				if(companynameOpt.isPresent()) {
-					Company company = companyRepository.getCompany(companynameOpt.get());
+					Company company = businessRepository.companyGet(companynameOpt.get());
 
 					if(company == null) 
 					{
@@ -45,7 +45,7 @@ public class InfoCommand implements CommandExecutor {
 						return CommandResult.success();
 					}
 				} else {
-					List<Company> companies = companyRepository.getByEmployeeId(player.getUniqueId().toString());
+					List<Company> companies = businessRepository.companyGetByEmployeeId(player.getUniqueId());
 
 					for(Company company : companies) {
 						//company.printInfo(player);

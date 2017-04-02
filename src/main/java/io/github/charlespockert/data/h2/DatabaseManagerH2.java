@@ -45,7 +45,7 @@ public class DatabaseManagerH2 implements DatabaseManager {
 
 	@Override
 	public void createDatabase() throws Exception {
-		String createScript = assetManager.getTextFile("create-database.sql");
+		String createScript = assetManager.getTextFile("h2/create-database.sql");
 		Connection conn = connectionManager.getConnection();
 
 		try {
@@ -58,7 +58,7 @@ public class DatabaseManagerH2 implements DatabaseManager {
 
 	@Override
 	public void deleteDatabase() throws Exception {
-		String createScript = assetManager.getTextFile("delete-database.sql");
+		String createScript = assetManager.getTextFile("h2/delete-database.sql");
 		Connection conn = connectionManager.getConnection();
 
 		try {

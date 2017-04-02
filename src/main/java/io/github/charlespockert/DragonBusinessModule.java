@@ -19,8 +19,7 @@ public class DragonBusinessModule implements Module {
 		binder.bind(DatabaseManager.class).to(DatabaseManagerH2.class);
 
 		// Dao
-		binder.bind(EmployeeDao.class).to(EmployeeH2Dao.class);
-		binder.bind(CompanyDao.class).to(CompanyH2Dao.class);
+		binder.bind(BusinessDao.class).to(BusinessH2Dao.class);
 	}
 
 }
