@@ -9,21 +9,33 @@ import org.slf4j.Logger;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import io.github.charlespockert.assets.AssetManager;
+import io.github.charlespockert.assets.AssetGrabber;
+import io.github.charlespockert.config.ConfigurationManager;
 import io.github.charlespockert.data.ConnectionManager;
 import io.github.charlespockert.data.DatabaseManager;
 
 @Singleton
 public class DatabaseManagerH2 implements DatabaseManager {
 
-	@Inject
 	private ConnectionManager connectionManager;
 
-	@Inject
-	private AssetManager assetManager;
+	private AssetGrabber assetGrabber;
 
-	@Inject 
 	private Logger logger;
+
+	private ConfigurationManager configurationManager;
+
+	private H2QueriesConfig queries;
+
+	@Inject
+	public DatabaseManagerH2(ConnectionManager connectionManager, AssetGrabber assetGrabber, Logger logger,
+			ConfigurationManager configurationManager, H2QueriesConfig queries) {
+		this.connectionManager = connectionManager;
+		this.assetGrabber = assetGrabber;
+		this.logger = logger;
+		this.configurationManager = configurationManager;
+		this.queries = queries;
+	}
 
 	@Override
 	public boolean databaseExists() throws SQLException {
@@ -34,7 +46,7 @@ public class DatabaseManagerH2 implements DatabaseManager {
 		try {
 			PreparedStatement statement = connectionManager.prepareStatement(conn, "SELECT * FROM Employee");
 			statement.execute();
-		} catch(SQLException ex) {
+		} catch (SQLException ex) {
 			return false;
 		} finally {
 			conn.close();
@@ -45,7 +57,7 @@ public class DatabaseManagerH2 implements DatabaseManager {
 
 	@Override
 	public void createDatabase() throws Exception {
-		String createScript = assetManager.getTextFile("h2/create-database.sql");
+		String createScript = assetGrabber.getTextFile("h2/create-database.sql");
 		Connection conn = connectionManager.getConnection();
 
 		try {
@@ -58,7 +70,7 @@ public class DatabaseManagerH2 implements DatabaseManager {
 
 	@Override
 	public void deleteDatabase() throws Exception {
-		String createScript = assetManager.getTextFile("h2/delete-database.sql");
+		String createScript = assetGrabber.getTextFile("h2/delete-database.sql");
 		Connection conn = connectionManager.getConnection();
 
 		try {
@@ -71,9 +83,12 @@ public class DatabaseManagerH2 implements DatabaseManager {
 
 	@Override
 	public void start() throws Exception {
-		if(!databaseExists()){
+		if (!databaseExists()) {
 			createDatabase();
 		}
+
+		// Load queries into the config
+		configurationManager.deserialise(queries, "h2/queries.conf");
 	}
 
 	@Override

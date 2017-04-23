@@ -1,16 +1,15 @@
 package io.github.charlespockert.entities;
 
-import io.github.charlespockert.data.common.DataWriter;
 import io.github.charlespockert.data.dto.CompanySummaryDto;
 
 public class CompanySummary {
-	
+
 	private String name;
-	
+
 	private String owner;
-	
+
 	private int employeeCount;
-	
+
 	private float value;
 
 	public String getName() {
@@ -28,7 +27,7 @@ public class CompanySummary {
 	public float getValue() {
 		return value;
 	}
-	
+
 	public static CompanySummary readFromDto(CompanySummaryDto dto) {
 		CompanySummary summary = new CompanySummary();
 		summary.name = dto.name;

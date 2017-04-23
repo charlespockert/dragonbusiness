@@ -11,6 +11,7 @@ import org.spongepowered.api.service.economy.EconomyService;
 
 import com.google.inject.Injector;
 
+import io.github.charlespockert.business.FiscalPeriodTaskRunner;
 import io.github.charlespockert.commands.CommandBuilder;
 import io.github.charlespockert.config.ConfigurationManager;
 import io.github.charlespockert.data.ConnectionManager;
@@ -30,34 +31,36 @@ public class PluginManager implements PluginLifecycle {
 	}
 
 	private void populatePlugins(Injector injector) {
-		
+
 		// Could use Guice Multibindings here but why bother :D
 		// Order is important so we are using LinkedHashSet.
 		components = new LinkedHashSet<PluginLifecycle>();
 
-		// Configuration is required first, then connections, then DB then the rest...
+		// Configuration is required first, then connections, then DB then the
+		// rest...
 		components.add((PluginLifecycle) injector.getInstance(ConfigurationManager.class));
 		components.add((PluginLifecycle) injector.getInstance(ConnectionManager.class));
 		components.add((PluginLifecycle) injector.getInstance(DatabaseManager.class));
 		components.add((PluginLifecycle) injector.getInstance(EventManager.class));
 		components.add((PluginLifecycle) injector.getInstance(CommandBuilder.class));
+		components.add((PluginLifecycle) injector.getInstance(FiscalPeriodTaskRunner.class));
 	}
 
 	@Override
 	public void freeze() {
-		if(!frozen){
-			for(PluginLifecycle component : components) {
+		if (!frozen) {
+			for (PluginLifecycle component : components) {
 				component.freeze();
-			}	
+			}
 		}
 	}
 
 	@Override
 	public void unfreeze() {
-		if(!frozen){
-			for(PluginLifecycle component : components) {
+		if (!frozen) {
+			for (PluginLifecycle component : components) {
 				component.unfreeze();
-			}	
+			}
 		}
 	}
 
@@ -69,16 +72,16 @@ public class PluginManager implements PluginLifecycle {
 		try {
 			// Check that an economy service is present
 			Optional<EconomyService> service = Sponge.getServiceManager().provide(EconomyService.class);
-			if(!service.isPresent()) {
-				logger.error("Dragon Business could not start - there was no economy plugin installed. Dragon Business requires an economy plugin.");
+			if (!service.isPresent()) {
+				logger.error(
+						"Dragon Business could not start - there was no economy plugin installed. Dragon Business requires an economy plugin.");
 				return;
 			}
 
-			for(PluginLifecycle component : components) {
+			for (PluginLifecycle component : components) {
 				component.start();
 			}
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			logger.error("Fatal error starting plugin: " + e.getMessage());
 			throw e;
 		}
@@ -87,10 +90,10 @@ public class PluginManager implements PluginLifecycle {
 	@Override
 	public void shutdown() {
 		try {
-			for(PluginLifecycle component : components) {
+			for (PluginLifecycle component : components) {
 				component.shutdown();
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.error("Failed to gracefully shutdown, your database might explode?");
 		}
 	}

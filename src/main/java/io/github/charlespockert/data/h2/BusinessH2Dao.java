@@ -13,344 +13,353 @@ import com.google.inject.Inject;
 import io.github.charlespockert.data.ConnectionManager;
 import io.github.charlespockert.data.UuidUtil;
 import io.github.charlespockert.data.dto.*;
-import io.github.charlespockert.config.ConfigurationManager;
+import io.github.charlespockert.data.h2.mappers.CompanySummaryDtoMapper;
 import io.github.charlespockert.data.BusinessDao;
 import io.github.charlespockert.entities.EmployeeRank;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 public class BusinessH2Dao implements BusinessDao {
 
-	@Inject
 	private ConnectionManager connectionManager;
 
-	@Inject 
-	private ConfigurationManager configurationManager;
-	
-	@Inject
 	private Logger logger;
-	
-	private CommentedConfigurationNode queries;
-	
-	public BusinessH2Dao() throws Exception {
+
+	private H2QueriesConfig queries;
+
+	private DatabaseMapper mapper;
+
+	@Inject
+	public BusinessH2Dao(ConnectionManager connectionManager, Logger logger, H2QueriesConfig queries,
+			DatabaseMapper databaseMapper) {
+		this.connectionManager = connectionManager;
+		this.logger = logger;
+		this.queries = queries;
+		this.mapper = databaseMapper;
 	}
-	
-	private String getQuery(Object... path) {
-		if(queries == null) {
-			try {
-				configurationManager.loadConfiguration("query.conf", "h2/query.conf");
-			} catch (Exception e) {
-				logger.error("Failed to load queries, errors are likely: " + e.getMessage());
-			}
-			
-			queries = configurationManager.getConfiguration("query.conf").getNode("sql");
-		}
-		
-		return queries.getNode(path).getString();
-	}
+
 	// Companies
 
 	@Override
 	public boolean companyExists(String name) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("company", "count-by-name"), name);
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.company.count_by_name, name);
 			ResultSet resultSet = statement.getResultSet();
 			resultSet.next();
 			int count = resultSet.getInt(1);
-			return count > 0;		
-		}
-		finally {
-			conn.close();
+			return count > 0;
 		}
 	}
 
 	@Override
 	public boolean companyExists(int id) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("company", "count-by-id"), id);
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.company.count_by_id, id);
 			ResultSet resultSet = statement.getResultSet();
 			resultSet.next();
 			int count = resultSet.getInt(1);
-			return count > 0;		
-		}
-		finally {
-			conn.close();
+			return count > 0;
 		}
 	}
 
 	@Override
-	public EmployeeDto companyGetCompanyOwner(int id) throws SQLException { 
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("company", "get-owner"), EmployeeRank.CEO.getValue());
-			return DtoUtil.employeePopulateSingle(statement);
-		}
-		finally {
-			conn.close();
-		}		
-	}
-	
-	@Override
-	public CompanyDto companyGet(String name) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("company", "get-by-name"), name);
-			return DtoUtil.companyPopulateSingle(statement);
-		}
-		finally {
-			conn.close();
+	public EmployeeDto companyGetCompanyOwner(int id) throws SQLException {
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.company.get_owner,
+					EmployeeRank.CEO.getValue());
+			return mapper.populateSingle(statement, EmployeeDto.class);
 		}
 	}
 
 	@Override
-	public CompanyDto companyGet(int id) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("company", "get-by-id"), id);
-			return DtoUtil.companyPopulateSingle(statement);
+	public CompanyDto companyGetByName(String name) throws SQLException {
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.company.get_by_name, name);
+			return mapper.populateSingle(statement, CompanyDto.class);
 		}
-		finally {
-			conn.close();
+	}
+
+	@Override
+	public CompanyDto companyGetById(int companyId) throws SQLException {
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.company.get_by_id,
+					companyId);
+			return mapper.populateSingle(statement, CompanyDto.class);
 		}
 	}
 
 	@Override
 	public List<CompanyDto> companyGetAll() throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("company", "get-all"));
-			return DtoUtil.companyPopulateMany(statement);
-		}
-		finally {
-			conn.close();
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.company.get_all);
+			return mapper.populateMany(statement, CompanyDto.class);
 		}
 	}
 
 	@Override
 	public List<CompanySummaryDto> companyGetSummary() throws SQLException {
-		Connection conn = connectionManager.getConnection();
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.company.get_summary);
+			List<CompanySummaryDto> summaries = mapper.populateMany(statement, CompanySummaryDto.class);
 
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("company", "get-summary"));
-			List<CompanySummaryDto> summaries = DtoUtil.companySummaryPopulateMany(statement);
-			
 			return summaries;
-		}
-		finally {
-			conn.close();
 		}
 	}
 
-	
 	@Override
 	public int companyCreate(String name, UUID plauyerUuid, String employeeName) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-		conn.setAutoCommit(false);
-		
-		try {
-			PreparedStatement compStatement = connectionManager.prepareStatement(conn, getQuery("company", "create"), name);
+		try (Connection conn = connectionManager.getConnection()) {
+			conn.setAutoCommit(false);
+
+			PreparedStatement compStatement = connectionManager.prepareStatement(conn, queries.company.create, name);
 			compStatement.executeUpdate();
 			ResultSet updateResult = compStatement.getGeneratedKeys();
 			updateResult.next();
 			int companyId = updateResult.getInt(1);
 
-			PreparedStatement empStatement = connectionManager.prepareStatement(conn, getQuery("employee", "create"), UuidUtil.asBytes(plauyerUuid), companyId, employeeName);
+			PreparedStatement empStatement = connectionManager.prepareStatement(conn, queries.employee.create,
+					UuidUtil.asBytes(plauyerUuid), companyId, employeeName);
 			empStatement.execute();
 
 			conn.commit();
 			return companyId;
-		}
-		catch(SQLException e) {
-			conn.rollback();
+		} catch (SQLException e) {
 			throw e;
-		}
-		finally {
-			conn.close();
 		}
 	}
 
 	@Override
 	public void companyUpdate(CompanyDto company) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("company", "update"), company.name, company.id);
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.company.update, company.name,
+					company.id);
 			statement.execute();
-		}
-		finally {
-			conn.close();
 		}
 	}
 
 	@Override
 	public void companyDelete(CompanyDto company) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("company", "delete"), company.id);
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.company.delete, company.id);
 			statement.execute();
-		}
-		finally {
-			conn.close();
 		}
 	}
 
 	@Override
-	public List<CompanyDto> companyGetByEmployeeId(UUID uuid) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("company", "get-by-employee-id"), UuidUtil.asBytes(uuid));
-			return DtoUtil.companyPopulateMany(statement);
-		}
-		finally {
-			conn.close();
+	public CompanyDto companyGetByEmployeeId(UUID uuid) throws SQLException {
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.company.get_by_employee_id,
+					UuidUtil.asBytes(uuid));
+			return mapper.populateSingle(statement, CompanyDto.class);
 		}
 	}
 
 	// Employees
-	
+
 	@Override
 	public boolean employeeExistsByName(String name) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("employee", "count-by-name"), name);
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.employee.count_by_name,
+					name);
 			ResultSet resultSet = statement.getResultSet();
 			resultSet.next();
 			int count = resultSet.getInt(1);
-			return count > 0;		
-		}
-		finally {
-			conn.close();
+			return count > 0;
 		}
 	}
 
 	@Override
 	public boolean employeeExists(UUID uuid) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("employee", "count-by-id"), UuidUtil.asBytes(uuid));
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.employee.count_by_id,
+					UuidUtil.asBytes(uuid));
 			ResultSet resultSet = statement.getResultSet();
 			resultSet.next();
 			int count = resultSet.getInt(1);
-			return count > 0;		
-		}
-		finally {
-			conn.close();
+			return count > 0;
 		}
 	}
 
 	@Override
 	public EmployeeDto employeeGetByName(String name) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("employee", "get-by-name"), name);
-			return DtoUtil.employeePopulateSingle(statement);
-		}
-		finally {
-			conn.close();
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.employee.get_by_name, name);
+			return mapper.populateSingle(statement, EmployeeDto.class);
 		}
 	}
 
 	@Override
 	public EmployeeDto employeeGet(UUID uuid) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("employee", "get-by-id"), UuidUtil.asBytes(uuid));
-			return DtoUtil.employeePopulateSingle(statement);
-		}
-		finally {
-			conn.close();
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.employee.get_by_id,
+					UuidUtil.asBytes(uuid));
+			return mapper.populateSingle(statement, EmployeeDto.class);
 		}
 	}
 
 	@Override
 	public List<EmployeeDto> employeeGetByCompanyId(int id) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("employee", "get-by-company-ud"), id);
-			return DtoUtil.employeePopulateMany(statement);
-		}
-		finally {
-			conn.close();
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.employee.get_by_company_id,
+					id);
+			return mapper.populateMany(statement, EmployeeDto.class);
 		}
 	}
 
 	@Override
 	public List<EmployeeDto> employeeGetAll() throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("employee", "get-all"));
-			return DtoUtil.employeePopulateMany(statement);
-		}
-		finally {
-			conn.close();
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.employee.get_all);
+			return mapper.populateMany(statement, EmployeeDto.class);
 		}
 	}
-	
+
 	@Override
 	public List<EmployeeDto> employeeGetAllByRank(EmployeeRank rank) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("employee", "get-by-rank"), rank.getValue());
-			return DtoUtil.employeePopulateMany(statement);
-		}
-		finally {
-			conn.close();
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.employee.get_by_rank,
+					rank.getValue());
+			return mapper.populateMany(statement, EmployeeDto.class);
 		}
 	}
-
 
 	@Override
 	public void employeeCreate(EmployeeDto employee) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("employee", "create"), UuidUtil.asBytes(employee.uuid), employee.company_id, employee.name);
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.employee.create,
+					UuidUtil.asBytes(employee.uuid), employee.company_id, employee.name);
 			statement.execute();
-		}
-		finally {
-			conn.close();
 		}
 	}
 
 	@Override
 	public void employeeUpdate(EmployeeDto employee) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("employee", "update"), employee.name, UuidUtil.asBytes(employee.uuid));
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.employee.update,
+					employee.name, UuidUtil.asBytes(employee.uuid));
 			statement.execute();
-		}
-		finally {
-			conn.close();
 		}
 	}
 
 	@Override
 	public void employeeDelete(EmployeeDto employee) throws SQLException {
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, getQuery("employee", "delete"), UuidUtil.asBytes(employee.uuid));
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.employee.delete,
+					UuidUtil.asBytes(employee.uuid));
 			statement.execute();
 		}
-		finally {
-			conn.close();
+	}
+
+	@Override
+	public TransactionDto transactionGet(int id) throws SQLException {
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.transaction.get_by_id, id);
+			return mapper.populateSingle(statement, TransactionDto.class);
 		}
+	}
+
+	@Override
+	public List<TransactionDto> transactionGetByEmployeeId(UUID employeeId) throws SQLException {
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn,
+					queries.transaction.get_by_employee_id, employeeId);
+			return mapper.populateMany(statement, TransactionDto.class);
+		}
+	}
+
+	@Override
+	public List<TransactionDto> transactionGetByEmployeeIdAndPeriod(UUID employeeId, int periodId) throws SQLException {
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn,
+					queries.transaction.get_by_employee_id_and_period_id, employeeId);
+			return mapper.populateMany(statement, TransactionDto.class);
+		}
+	}
+
+	@Override
+	public List<TransactionDto> transactionGetByCompanyIdAndPeriod(int companyId, int periodId) throws SQLException {
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn,
+					queries.transaction.get_by_company_id_and_period_id, companyId, periodId);
+			return mapper.populateMany(statement, TransactionDto.class);
+		}
+	}
+
+	@Override
+	public List<TransactionDto> transactionGetByCompanyId(int companyId) throws SQLException {
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn,
+					queries.transaction.get_by_company_id, companyId);
+			return mapper.populateMany(statement, TransactionDto.class);
+		}
+	}
+
+	@Override
+	public List<TransactionDto> transactionGetByPeriodId(int periodId) throws SQLException {
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.transaction.get_by_period_id,
+					periodId);
+			return mapper.populateMany(statement, TransactionDto.class);
+		}
+	}
+
+	@Override
+	public int transactionCreate() throws SQLException {
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn,
+					queries.transaction.get_by_period_id);
+			return 0;
+		}
+	}
+
+	@Override
+	public ShareDto shareGet(int id) throws SQLException {
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.share.get_by_id, id);
+			return mapper.populateSingle(statement, ShareDto.class);
+		}
+	}
+
+	@Override
+	public List<ShareDto> shareGetByEmployeeId(UUID employeeId) throws SQLException {
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.share.get_by_employee_id,
+					employeeId);
+			return mapper.populateMany(statement, ShareDto.class);
+		}
+	}
+
+	@Override
+	public List<ShareDto> shareGetByCompanyId(int companyId) throws SQLException {
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.share.get_by_company_id,
+					companyId);
+			return mapper.populateMany(statement, ShareDto.class);
+		}
+	}
+
+	@Override
+	public List<ShareDto> shareCreate(UUID employeeId, int companyId, int amount) throws SQLException {
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = connectionManager.prepareStatement(conn, queries.share.create, employeeId,
+					companyId, amount);
+			return mapper.populateMany(statement, ShareDto.class);
+		}
+	}
+
+	@Override
+	public List<ShareDto> shareUpdate(UUID employeeId, int comapnyId, int amount) throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int shareCreate() throws SQLException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int shareUpdate() throws SQLException {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

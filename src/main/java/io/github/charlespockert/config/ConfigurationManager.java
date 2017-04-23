@@ -1,90 +1,94 @@
 package io.github.charlespockert.config;
 
-import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import org.slf4j.Logger;
 import org.spongepowered.api.config.ConfigDir;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import io.github.charlespockert.PluginLifecycle;
-import io.github.charlespockert.assets.AssetManager;
+import io.github.charlespockert.assets.AssetGrabber;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
+import ninja.leaping.configurate.objectmapping.ObjectMapper;
+import ninja.leaping.configurate.objectmapping.ObjectMapper.BoundInstance;
 
 @Singleton
 public class ConfigurationManager implements PluginLifecycle {
 
-	private HashMap<String, CommentedConfigurationNode> configurations;
-	private HoconConfigurationLoader.Builder builder = HoconConfigurationLoader.builder();
-
-	// Configuration section constants
-	public static final String SQL_CONFIG = "sql";
-	public static final String MESSAGES = "messages";
-
-	@Inject
 	private Logger logger;
-	
-	@Inject
-	private AssetManager assetManager;
 
-	@Inject
-	@ConfigDir(sharedRoot = false) 
 	private Path configDirectory;
 
+	private MessagesConfig messagesConfig;
+
+	private MainConfig mainConfig;
+
+	private HoconConfigurationLoader.Builder builder = HoconConfigurationLoader.builder();
+
 	@Inject
-	public ConfigurationManager() {		
-		configurations = new HashMap<String, CommentedConfigurationNode>();
+	public ConfigurationManager(@ConfigDir(sharedRoot = false) Path configDirectory, AssetGrabber assetGrabber,
+			Logger logger, MessagesConfig messagesConfig, MainConfig mainConfig) {
+		this.configDirectory = configDirectory;
+		this.logger = logger;
+		this.messagesConfig = messagesConfig;
+		this.mainConfig = mainConfig;
 	}
 
-	public void loadConfiguration(String key, String fileName) throws Exception {	
-		Path filePath = configDirectory.resolve(fileName);
-		
-		boolean requiresSave = false;
-		logger.info("Attempting to load " + key + " config");
+	public <T> void deserialise(T instance, String fileName) throws Exception {
 
-		if(!filePath.toFile().exists()) {
-			logger.info("No config found, using default config from jar");
-			requiresSave = true;
-			builder.setURL(assetManager.getURL(fileName));
+		Path filePath = configDirectory.resolve(fileName);
+
+		// Create a mapper to bind to the instance
+		ObjectMapper<T> mapper = ObjectMapper.forClass((Class) instance.getClass());
+		builder.setPath(filePath);
+		ConfigurationLoader<CommentedConfigurationNode> loader = builder.build();
+
+		logger.info("Attempting to load config file: " + fileName);
+
+		BoundInstance bound = mapper.bind(instance);
+
+		// Ensure the config exists
+		if (!Files.exists(filePath)) {
+			logger.info("Config file did not exist, generating default config");
+			// Files.createDirectories(filePath);
+			CommentedConfigurationNode node = loader.createEmptyNode();
+			bound.serialize(node);
+			loader.save(node);
 		} else {
-			builder.setPath(filePath);
-		}
-
-		ConfigurationLoader<CommentedConfigurationNode> loader = builder.build();		
-		configurations.put(key, loader.load());
-		
-		// If we require a write back to the file system, save
-		if(requiresSave) {
-			saveConfiguration(key, fileName);
+			bound.populate(loader.load());
 		}
 	}
 
-	public void saveConfiguration(String key, String fileName) throws IOException {
+	public <T> void serialize(T instance, String fileName) throws Exception {
 		Path filePath = configDirectory.resolve(fileName);
 
-		logger.info("Setting file path on save to: " + filePath.toString());
-		builder.setFile(filePath.toFile());
-		builder.build().save(configurations.get(key));
-	}
+		logger.info("Saving config to: " + filePath);
 
-	public CommentedConfigurationNode getConfiguration(String key) {
-		return configurations.get(key);
+		builder.setPath(filePath);
+		ConfigurationLoader<CommentedConfigurationNode> loader = builder.build();
+
+		ObjectMapper<T> mapper = ObjectMapper.forClass((Class) instance.getClass());
+		CommentedConfigurationNode node = loader.createEmptyNode();
+		mapper.bind(instance).serialize(node);
+		loader.save(node);
 	}
 
 	@Override
 	public void start() throws Exception {
-		loadConfiguration(SQL_CONFIG, "sql.conf");
-		loadConfiguration(MESSAGES, "messages.conf");
+		// Load configuration files into their containers
+		deserialise(messagesConfig, "messages.conf");
+		deserialise(mainConfig, "dragonbusiness.conf");
 	}
 
 	@Override
 	public void shutdown() throws Exception {
-		// Save any configuration changes in case
-		saveConfiguration(SQL_CONFIG, "sql.conf");
-		saveConfiguration(MESSAGES, "messages.conf");
+		// Save any configuration changes
+		serialize(messagesConfig, "messages.conf");
+		serialize(mainConfig, "dragonbusiness.conf");
 	}
 
 	@Override

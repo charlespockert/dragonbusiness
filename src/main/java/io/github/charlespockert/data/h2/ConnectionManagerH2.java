@@ -15,24 +15,27 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import io.github.charlespockert.config.ConfigurationManager;
+import io.github.charlespockert.config.MainConfig;
 import io.github.charlespockert.data.ConnectionManager;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 @Singleton
 public class ConnectionManagerH2 implements ConnectionManager {
 
-	SqlService sqlService;
-	DataSource dataSource;
-	CommentedConfigurationNode sqlConfig;
+	private SqlService sqlService;
+	private DataSource dataSource;
+	private MainConfig mainConfig;
+	private Logger logger;
 
 	@Inject
-	ConfigurationManager configurationManager;
-
-	@Inject
-	Logger logger;
+	public ConnectionManagerH2(Logger logger, SqlService sqlService, MainConfig mainConfig) {
+		this.logger = logger;
+		this.sqlService = sqlService;
+		this.mainConfig = mainConfig;
+	}
 
 	public Connection getConnection() throws SQLException {
-		return dataSource.getConnection();		
+		return dataSource.getConnection();
 	}
 
 	public PreparedStatement prepareStatement(Connection conn, String sql, Object... params) throws SQLException {
@@ -40,25 +43,25 @@ public class ConnectionManagerH2 implements ConnectionManager {
 		ParameterMetaData metadata = statement.getParameterMetaData();
 		int ix = 1;
 
-		for(Object param : params) {
+		for (Object param : params) {
 
 			int type = metadata.getParameterType(ix);
 
 			logger.info("Value " + param.toString() + " matching param type " + type);
 
-			switch(type) {
+			switch (type) {
 			case Types.BIGINT:
 			case Types.INTEGER:
 			case Types.SMALLINT:
-				statement.setInt(ix, (int)param);
+				statement.setInt(ix, (int) param);
 				break;
 			case Types.DOUBLE:
 			case Types.NUMERIC:
-				statement.setDouble(ix, (double)param);
+				statement.setDouble(ix, (double) param);
 				break;
 			case Types.DECIMAL:
 			case Types.FLOAT:
-				statement.setFloat(ix, (float)param);
+				statement.setFloat(ix, (float) param);
 				break;
 			case Types.VARCHAR:
 			case Types.NVARCHAR:
@@ -66,16 +69,16 @@ public class ConnectionManagerH2 implements ConnectionManager {
 			case Types.LONGVARCHAR:
 			case Types.NCHAR:
 			case Types.CHAR:
-				statement.setString(ix, (String)param);
+				statement.setString(ix, (String) param);
 				break;
 			case Types.VARBINARY:
-				statement.setBytes(ix, (byte[])param);
+				statement.setBytes(ix, (byte[]) param);
 				break;
 			default:
 				throw new SQLException("Unknown java.sql.Type type ID: " + type);
 			}
 
-			ix ++;
+			ix++;
 		}
 
 		logger.info("Executing query: " + statement.toString());
@@ -85,13 +88,12 @@ public class ConnectionManagerH2 implements ConnectionManager {
 
 	@Override
 	public void start() throws Exception {
-		sqlService = Sponge.getServiceManager().provide(SqlService.class).get();		
-		sqlConfig = configurationManager.getConfiguration(ConfigurationManager.SQL_CONFIG);
-		dataSource = sqlService.getDataSource(String.format("jdbc:h2:~/%s;AUTO_SERVER=TRUE", sqlConfig.getNode("database", "dbname").getString()));
+		dataSource = sqlService
+				.getDataSource(String.format("jdbc:h2:~/%s;AUTO_SERVER=TRUE", mainConfig.database.database_name));
 	}
 
 	@Override
-	public void shutdown() {		
+	public void shutdown() {
 	}
 
 	@Override

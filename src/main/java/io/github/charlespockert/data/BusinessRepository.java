@@ -24,42 +24,37 @@ public class BusinessRepository {
 	}
 
 	public Company companyGet(int id) throws SQLException {
-		CompanyDto dto = dao.companyGet(id);
+		CompanyDto dto = dao.companyGetById(id);
 		return Company.readFromDto(dto);
 	}
 
 	public Company companyGet(String name) throws SQLException {
-		CompanyDto dto = dao.companyGet(name);
-		return Company.readFromDto(dto);		
+		CompanyDto dto = dao.companyGetByName(name);
+		return Company.readFromDto(dto);
 	}
 
-	public List<Company> companyGetByEmployeeId(UUID uuid) throws SQLException {
-		ArrayList<Company> companies = new ArrayList<Company>();
-		
-		for(CompanyDto dto : dao.companyGetByEmployeeId(uuid)) {
-			companies.add(Company.readFromDto(dto));
-		}
-		
-		return companies;
+	public Company companyGetByEmployeeId(UUID uuid) throws SQLException {
+		CompanyDto dto = dao.companyGetByEmployeeId(uuid);
+		return Company.readFromDto(dto);
 	}
 
 	public List<Company> companyGetAll() throws SQLException {
 		ArrayList<Company> companies = new ArrayList<Company>();
-		
-		for(CompanyDto dto : dao.companyGetAll()) {
+
+		for (CompanyDto dto : dao.companyGetAll()) {
 			companies.add(Company.readFromDto(dto));
 		}
-		
+
 		return companies;
 	}
-	
+
 	public List<CompanySummary> companyGetSummary() throws SQLException {
 		ArrayList<CompanySummary> companies = new ArrayList<CompanySummary>();
-		
-		for(CompanySummaryDto dto : dao.companyGetSummary()) {
+
+		for (CompanySummaryDto dto : dao.companyGetSummary()) {
 			companies.add(CompanySummary.readFromDto(dto));
 		}
-		
+
 		return companies;
 	}
 
@@ -77,7 +72,6 @@ public class BusinessRepository {
 		dao.companyDelete(dto);
 	}
 
-
 	public boolean employeeExistsByName(String uuid) throws SQLException {
 		return dao.employeeExistsByName(uuid);
 	}
@@ -88,18 +82,28 @@ public class BusinessRepository {
 
 	public Employee employeeGet(UUID uuid) throws SQLException {
 		EmployeeDto dto = dao.employeeGet(uuid);
-		return Employee.readFromDto(dto);		
+		return Employee.readFromDto(dto);
 	}
 
 	public Employee employeeGetByName(String name) throws SQLException {
 		EmployeeDto dto = dao.employeeGetByName(name);
-		return Employee.readFromDto(dto);		
+		return Employee.readFromDto(dto);
 	}
 
 	public List<Employee> employeeGetAll() throws SQLException {
 		ArrayList<Employee> employees = new ArrayList<Employee>();
 
-		for(EmployeeDto dto : dao.employeeGetAll()) {
+		for (EmployeeDto dto : dao.employeeGetAll()) {
+			employees.add(Employee.readFromDto(dto));
+		}
+
+		return employees;
+	}
+
+	public List<Employee> employeeGetByCompanyId(int id) throws SQLException {
+		List<Employee> employees = new ArrayList<Employee>();
+
+		for (EmployeeDto dto : dao.employeeGetByCompanyId(id)) {
 			employees.add(Employee.readFromDto(dto));
 		}
 
@@ -109,7 +113,7 @@ public class BusinessRepository {
 	public List<Employee> employeeGetAllByRank(EmployeeRank rank) throws SQLException {
 		ArrayList<Employee> employees = new ArrayList<Employee>();
 
-		for(EmployeeDto dto : dao.employeeGetAllByRank(rank)) {
+		for (EmployeeDto dto : dao.employeeGetAllByRank(rank)) {
 			employees.add(Employee.readFromDto(dto));
 		}
 

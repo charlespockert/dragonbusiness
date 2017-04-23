@@ -13,81 +13,71 @@ import org.spongepowered.api.text.format.TextColors;
 import org.stringtemplate.v4.ST;
 import com.google.inject.Inject;
 
-import io.github.charlespockert.config.ConfigurationManager;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import io.github.charlespockert.config.MessagesConfig;
 
 public class Formatter {
 
-	private static char delimiter = 28; 	  // file separator
+	private static char delimiter = 28; // file separator
 	private static char colorIdentifier = 29; // group separator
-	private static char lineFeed = 30;	  // line feed :P
+	private static char lineFeed = 30; // line feed :P
 
-	@Inject 
 	private Logger logger;
 
+	private MessagesConfig messagesConfig;
+
 	@Inject
-	protected ConfigurationManager configurationManager;
+	public Formatter(Logger logger, MessagesConfig messagesConfig) {
+		this.logger = logger;
+		this.messagesConfig = messagesConfig;
+	}
 
 	protected Text getPadding() {
-		CommentedConfigurationNode config = configurationManager.getConfiguration(ConfigurationManager.MESSAGES);
-
-		return Text.of(config.getNode("messages", "padding").getString());
+		return Text.of(messagesConfig.padding);
 	}
 
 	private String delimitColor(TextColor color) {
-		return String.valueOf(delimiter) + String.valueOf(colorIdentifier) + color.toString() + String.valueOf(delimiter);		
+		return String.valueOf(delimiter) + String.valueOf(colorIdentifier) + color.toString()
+				+ String.valueOf(delimiter);
 	}
 
 	private String delimitLineFeed() {
-		return String.valueOf(delimiter) + String.valueOf(lineFeed) + String.valueOf(delimiter);		
+		return String.valueOf(delimiter) + String.valueOf(lineFeed) + String.valueOf(delimiter);
 	}
 
-	protected Text getText(String text) {		
+	protected Text getText(String text) {
 		return getText(text, null);
 	}
 
-	protected Text getText(String text, Object data) {		
+	protected Text getText(String text, Object data) {
 		ST st = new ST(text);
-		//		st.groupThatCreatedThisInstance.registerRenderer(PaddedStringRenderer.class, new PaddedStringRenderer());
+		// st.groupThatCreatedThisInstance.registerRenderer(PaddedStringRenderer.class,
+		// new PaddedStringRenderer());
 
-		if(data != null)
+		if (data != null)
 			st.add("data", data);
 
 		st.addAggr("control.{NEWLINE}", delimitLineFeed());
 
-		st.addAggr("colors.{AQUA,BLACK,BLUE,"
-				+ "DARK_AQUA,DARK_BLUE,DARK_GRAY,"
-				+ "DARK_GREEN,DARK_PURPLE,DARK_RED,"
-				+ "GOLD,GRAY,GREEN,LIGHT_PURPLE,"
-				+ "NONE,RED,RESET,WHITE,YELLOW}", 
-				delimitColor(TextColors.AQUA), 
-				delimitColor(TextColors.BLACK), 
-				delimitColor(TextColors.BLUE), 
-				delimitColor(TextColors.DARK_AQUA), 
-				delimitColor(TextColors.DARK_BLUE), 
-				delimitColor(TextColors.DARK_GRAY),
-				delimitColor(TextColors.DARK_GREEN), 
-				delimitColor(TextColors.DARK_PURPLE), 
-				delimitColor(TextColors.DARK_RED),
-				delimitColor(TextColors.GOLD), 
-				delimitColor(TextColors.GRAY), 
-				delimitColor(TextColors.GREEN), 
-				delimitColor(TextColors.LIGHT_PURPLE),
-				delimitColor(TextColors.NONE), 
-				delimitColor(TextColors.RED), 
-				delimitColor(TextColors.RESET), 
-				delimitColor(TextColors.WHITE), 
-				delimitColor(TextColors.YELLOW));
+		st.addAggr(
+				"colors.{AQUA,BLACK,BLUE," + "DARK_AQUA,DARK_BLUE,DARK_GRAY," + "DARK_GREEN,DARK_PURPLE,DARK_RED,"
+						+ "GOLD,GRAY,GREEN,LIGHT_PURPLE," + "NONE,RED,RESET,WHITE,YELLOW}",
+				delimitColor(TextColors.AQUA), delimitColor(TextColors.BLACK), delimitColor(TextColors.BLUE),
+				delimitColor(TextColors.DARK_AQUA), delimitColor(TextColors.DARK_BLUE),
+				delimitColor(TextColors.DARK_GRAY), delimitColor(TextColors.DARK_GREEN),
+				delimitColor(TextColors.DARK_PURPLE), delimitColor(TextColors.DARK_RED), delimitColor(TextColors.GOLD),
+				delimitColor(TextColors.GRAY), delimitColor(TextColors.GREEN), delimitColor(TextColors.LIGHT_PURPLE),
+				delimitColor(TextColors.NONE), delimitColor(TextColors.RED), delimitColor(TextColors.RESET),
+				delimitColor(TextColors.WHITE), delimitColor(TextColors.YELLOW));
 
 		// Render the text out, tokenise and recombine into a Text object
 		String[] parts = st.render().split(String.valueOf(delimiter));
 
 		ArrayList<Object> texts = new ArrayList<Object>();
 
-		for(String str : parts) {
-			if(str.length() > 0){
-				if(str.charAt(0) == colorIdentifier) {
-					switch(str.substring(1).toUpperCase()) {
+		for (String str : parts) {
+			if (str.length() > 0) {
+				if (str.charAt(0) == colorIdentifier) {
+					switch (str.substring(1).toUpperCase()) {
 					case "AQUA":
 						texts.add(TextColors.AQUA);
 						break;
@@ -143,7 +133,7 @@ public class Formatter {
 						texts.add(TextColors.YELLOW);
 						break;
 					}
-				} else if(str.charAt(0) == lineFeed) {
+				} else if (str.charAt(0) == lineFeed) {
 					texts.add(Text.NEW_LINE);
 				} else {
 					texts.add(Text.of(str));
@@ -168,12 +158,32 @@ public class Formatter {
 		return builder;
 	}
 
-	public void sendText(MessageReceiver messageReceiver, Object data, String text) {		
+	public void sendText(MessageReceiver messageReceiver, Object data, String text) {
 		messageReceiver.sendMessage(getText(text, data));
 	}
 
-	public Text formatText(Object data, String text) {		
+	public Text formatText(Object data, String text) {
 		return getText(text, data);
+	}
+
+	public PaginationList.Builder sendPaged(String heading, List<String> lines) {
+		PaginationList.Builder builder = PaginationList.builder();
+
+		builder.title(getText(heading)).padding(getPadding());
+
+		builder.contents(lines.stream().map(line -> getText(line)).collect(Collectors.toList()));
+
+		return builder;
+	}
+
+	public PaginationList.Builder formatPaged(List<?> data, String heading, String itemText) {
+		PaginationList.Builder builder = PaginationList.builder();
+
+		builder.title(getText(heading)).padding(getPadding());
+
+		builder.contents(data.stream().map(listItem -> getText(itemText, listItem)).collect(Collectors.toList()));
+
+		return builder;
 	}
 
 }

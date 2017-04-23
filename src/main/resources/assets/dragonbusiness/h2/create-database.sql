@@ -68,3 +68,23 @@ CREATE TABLE share
 	
 	count INT NOT NULL
 );
+
+// APPLICATION
+// ============================
+// Applications track employees applying for job positions at a company
+CREATE TABLE application 
+(
+	employee_id varbinary(16) NOT NULL,
+	company_id int NOT NULL
+)
+
+// PERIODS
+// ============================
+// Periods track all financial periods created in the game. Users can query this table through commands
+// in order to look back on previous financial data in the game
+CREATE TABLE PERIOD 
+(
+	start_date TIMESTAMP, 
+	end_date TIMESTAMP, 
+	id int auto_increment
+)
