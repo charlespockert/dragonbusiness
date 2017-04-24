@@ -43,12 +43,14 @@ public class ConfigurationManager implements PluginLifecycle {
 		Path filePath = configDirectory.resolve(fileName);
 
 		// Create a mapper to bind to the instance
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		ObjectMapper<T> mapper = ObjectMapper.forClass((Class) instance.getClass());
 		builder.setPath(filePath);
 		ConfigurationLoader<CommentedConfigurationNode> loader = builder.build();
 
 		logger.info("Attempting to load config file: " + fileName);
 
+		@SuppressWarnings("rawtypes")
 		BoundInstance bound = mapper.bind(instance);
 
 		// Ensure the config exists
@@ -71,6 +73,7 @@ public class ConfigurationManager implements PluginLifecycle {
 		builder.setPath(filePath);
 		ConfigurationLoader<CommentedConfigurationNode> loader = builder.build();
 
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		ObjectMapper<T> mapper = ObjectMapper.forClass((Class) instance.getClass());
 		CommentedConfigurationNode node = loader.createEmptyNode();
 		mapper.bind(instance).serialize(node);

@@ -24,6 +24,12 @@ public class MessagesConfig {
 	@Setting
 	public Salary salary = new Salary();
 
+	@Setting
+	public Company company = new Company();
+
+	@Setting
+	public Info info = new Info();
+
 	@ConfigSerializable
 	public static class General {
 		@Setting
@@ -56,9 +62,25 @@ public class MessagesConfig {
 		public String company_insufficient_funds = "Your company has run out of cash and you cannot be paid!";
 
 		@Setting
-		public String salary_paid = "Your salary of %d has been paid into your account";
+		public String salary_paid = "Your salary of <data> has been paid into your account";
 
 		@Setting
 		public String payment_issue = "There was a technical issue paying your salary";
+	}
+
+	@ConfigSerializable
+	public static class Company {
+		@Setting
+		public String company_bankrupt_broadcast = "<data.name> can no longer meet its financial obligations and has filed for bankruptcy!";
+	}
+
+	@ConfigSerializable
+	public static class Info {
+		@Setting
+		public String company_name = "Company: <data.name>";
+		@Setting
+		public String owner = "CEO: <data.name>";
+		@Setting
+		public String employee_info = "<data.name> can no longer meet its financial obligations and has filed for bankruptcy!";
 	}
 }

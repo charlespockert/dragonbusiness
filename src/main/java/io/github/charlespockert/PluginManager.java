@@ -1,6 +1,5 @@
 package io.github.charlespockert;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;

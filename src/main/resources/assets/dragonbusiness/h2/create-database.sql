@@ -76,15 +76,15 @@ CREATE TABLE application
 (
 	employee_id varbinary(16) NOT NULL,
 	company_id int NOT NULL
-)
+);
 
 // PERIODS
 // ============================
 // Periods track all financial periods created in the game. Users can query this table through commands
 // in order to look back on previous financial data in the game
-CREATE TABLE PERIOD 
+CREATE TABLE period 
 (
-	start_date TIMESTAMP, 
-	end_date TIMESTAMP, 
-	id int auto_increment
+	id int auto_increment,
+	start_date TIMESTAMP NOT NULL, 
+	end_date TIMESTAMP
 )

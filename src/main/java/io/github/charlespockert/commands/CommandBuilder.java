@@ -1,7 +1,6 @@
 package io.github.charlespockert.commands;
 
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.command.spec.CommandSpec.Builder;

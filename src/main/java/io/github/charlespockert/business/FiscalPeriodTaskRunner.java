@@ -29,8 +29,8 @@ public class FiscalPeriodTaskRunner implements PluginLifecycle {
 	private Task closeFiscalPeriodTask;
 
 	@Inject
-	public FiscalPeriodTaskRunner(DragonBusinessPlugin plugin, MainConfig mainConfig, CloseFiscalPeriod closeFiscalPeriod,
-			PaySalary paySalary) {
+	public FiscalPeriodTaskRunner(DragonBusinessPlugin plugin, MainConfig mainConfig,
+			CloseFiscalPeriod closeFiscalPeriod, PaySalary paySalary) {
 		this.mainConfig = mainConfig;
 		this.plugin = plugin;
 		this.closeFiscalPeriod = closeFiscalPeriod;
@@ -41,10 +41,15 @@ public class FiscalPeriodTaskRunner implements PluginLifecycle {
 		paySalaryTask = taskBuilder.delay(mainConfig.business.salary_interval_minutes, TimeUnit.MINUTES)
 				.interval(mainConfig.business.salary_interval_minutes, TimeUnit.MINUTES)
 				.name("DragonBusiness - Salary Payments").execute(paySalary).submit(plugin);
+
+		closeFiscalPeriodTask = taskBuilder.delay(mainConfig.business.fiscal_period_length_minutes, TimeUnit.MINUTES)
+				.interval(mainConfig.business.fiscal_period_length_minutes, TimeUnit.MINUTES)
+				.name("DragonBusiness - Close Fiscal Period").execute(closeFiscalPeriod).submit(plugin);
 	}
 
 	private void cancelTasks() {
 		paySalaryTask.cancel();
+		closeFiscalPeriodTask.cancel();
 	}
 
 	@Override

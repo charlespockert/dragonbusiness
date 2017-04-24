@@ -1,4 +1,4 @@
-package io.github.charlespockert.entities;
+package io.github.charlespockert.data.dto;
 
 public enum TransactionType {
 	Salary(0),

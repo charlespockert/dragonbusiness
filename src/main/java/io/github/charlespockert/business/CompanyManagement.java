@@ -3,26 +3,32 @@ package io.github.charlespockert.business;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import org.spongepowered.api.Server;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.service.economy.transaction.TransactionResult;
+import org.spongepowered.api.text.Text;
+
+import com.google.inject.Inject;
 
 import io.github.charlespockert.DragonBusinessPlugin;
 import io.github.charlespockert.config.MainConfig;
 import io.github.charlespockert.config.MessagesConfig;
-import io.github.charlespockert.data.BusinessRepository;
-import io.github.charlespockert.entities.Company;
-import io.github.charlespockert.entities.Employee;
+import io.github.charlespockert.data.dao.DaoContainer;
+import io.github.charlespockert.data.dto.CompanyDto;
+import io.github.charlespockert.data.dto.EmployeeDto;
 import io.github.charlespockert.formatting.Formatter;
 
 public class CompanyManagement {
 
 	DragonBusinessPlugin plugin;
 
-	BusinessRepository businessRepository;
+	DaoContainer daoContainer;
+
+	// BusinessRepository businessRepository;
 
 	EconomyService economyService;
 
@@ -32,14 +38,18 @@ public class CompanyManagement {
 
 	MainConfig mainConfig;
 
-	public CompanyManagement(BusinessRepository businessRepository, EconomyService economyService, Formatter formatter,
-			MessagesConfig messagesConfig, DragonBusinessPlugin plugin, MainConfig mainConfig) {
-		this.businessRepository = businessRepository;
+	Server server;
+
+	@Inject
+	public CompanyManagement(DaoContainer daoContainer, EconomyService economyService, Formatter formatter,
+			MessagesConfig messagesConfig, DragonBusinessPlugin plugin, MainConfig mainConfig, Server server) {
+		this.daoContainer = daoContainer;
 		this.economyService = economyService;
 		this.formatter = formatter;
 		this.messagesConfig = messagesConfig;
 		this.plugin = plugin;
 		this.mainConfig = mainConfig;
+		this.server = server;
 	}
 
 	// Company status
@@ -48,7 +58,8 @@ public class CompanyManagement {
 		Player player = context.first(Player.class).get();
 
 		// Check an employee doesn't already exist
-		Employee employee = businessRepository.employeeGet(player.getUniqueId());
+		EmployeeDto employee = daoContainer.employees().getById(player.getUniqueId());
+
 		if (employee != null)
 			throw new CommandException(formatter.formatText(null, messagesConfig.create.already_employed));
 
@@ -59,8 +70,8 @@ public class CompanyManagement {
 
 		switch (result.getResult()) {
 		case SUCCESS:
-			int newCompanyId = businessRepository.companyCreate(companyName, player.getUniqueId(), player.getName());
-			Company company = businessRepository.companyGet(newCompanyId);
+			int newCompanyId = daoContainer.companies().create(companyName, player.getUniqueId(), player.getName());
+			CompanyDto company = daoContainer.companies().getById(newCompanyId);
 			formatter.sendText(player, company, messagesConfig.create.success);
 			break;
 		default:
@@ -68,8 +79,15 @@ public class CompanyManagement {
 		}
 	}
 
-	public void bankrupt(int id) {
+	public void bankrupt(int id) throws Exception {
+		CompanyDto company = daoContainer.companies().getById(id);
 
+		Text allPlayersMessage = formatter.formatText(company, messagesConfig.company.company_bankrupt_broadcast);
+
+		for (Player player : server.getOnlinePlayers()) {
+			// Notify all users that a company went bankrupt
+			player.sendMessage(allPlayersMessage);
+		}
 	}
 
 	// Shares

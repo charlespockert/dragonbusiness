@@ -5,8 +5,8 @@ import java.util.UUID;
 
 public class EmployeeDto {
 	public UUID uuid;
-	public String name;	
-	public int rank;
+	public String name;
+	public EmployeeRank rank;
 	public int company_id;
 	public Date employmentStart;
 }

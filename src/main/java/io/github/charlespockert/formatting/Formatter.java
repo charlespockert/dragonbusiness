@@ -49,9 +49,10 @@ public class Formatter {
 	}
 
 	protected Text getText(String text, Object data) {
+
+		logger.debug("Formatting text: " + text);
+
 		ST st = new ST(text);
-		// st.groupThatCreatedThisInstance.registerRenderer(PaddedStringRenderer.class,
-		// new PaddedStringRenderer());
 
 		if (data != null)
 			st.add("data", data);
@@ -159,7 +160,7 @@ public class Formatter {
 	}
 
 	public void sendText(MessageReceiver messageReceiver, Object data, String text) {
-		messageReceiver.sendMessage(getText(text, data));
+		messageReceiver.sendMessage(watermark(getText(text, data)));
 	}
 
 	public Text formatText(Object data, String text) {
@@ -186,4 +187,8 @@ public class Formatter {
 		return builder;
 	}
 
+	public Text watermark(Text text) {
+		// Adds a watermark to the specified text object
+		return Text.of(TextColors.GOLD, "[", TextColors.AQUA, "DBiz", TextColors.GOLD, "] ", TextColors.RESET, text);
+	}
 }

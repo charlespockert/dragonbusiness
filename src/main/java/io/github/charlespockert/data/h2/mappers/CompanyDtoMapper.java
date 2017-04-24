@@ -15,7 +15,7 @@ public class CompanyDtoMapper extends DtoMapper<CompanyDto> {
 		dto.name = resultSet.getString("name");
 		dto.bankrupt = resultSet.getBoolean("bankrupt");
 		dto.sharesIssued = resultSet.getInt("shares_issued");
-		dto.value = resultSet.getFloat("value");
+		dto.value = resultSet.getBigDecimal("value");
 
 		return dto;
 	}

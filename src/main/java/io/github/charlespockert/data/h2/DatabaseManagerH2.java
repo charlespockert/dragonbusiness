@@ -10,7 +10,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import io.github.charlespockert.assets.AssetGrabber;
-import io.github.charlespockert.config.ConfigurationManager;
 import io.github.charlespockert.data.ConnectionManager;
 import io.github.charlespockert.data.DatabaseManager;
 
@@ -23,18 +22,11 @@ public class DatabaseManagerH2 implements DatabaseManager {
 
 	private Logger logger;
 
-	private ConfigurationManager configurationManager;
-
-	private H2QueriesConfig queries;
-
 	@Inject
-	public DatabaseManagerH2(ConnectionManager connectionManager, AssetGrabber assetGrabber, Logger logger,
-			ConfigurationManager configurationManager, H2QueriesConfig queries) {
+	public DatabaseManagerH2(ConnectionManager connectionManager, AssetGrabber assetGrabber, Logger logger) {
 		this.connectionManager = connectionManager;
 		this.assetGrabber = assetGrabber;
 		this.logger = logger;
-		this.configurationManager = configurationManager;
-		this.queries = queries;
 	}
 
 	@Override
@@ -44,7 +36,7 @@ public class DatabaseManagerH2 implements DatabaseManager {
 		Connection conn = connectionManager.getConnection();
 
 		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, "SELECT * FROM Employee");
+			PreparedStatement statement = DbUtil.prepareStatement(conn, "SELECT * FROM Employee");
 			statement.execute();
 		} catch (SQLException ex) {
 			return false;
@@ -61,7 +53,7 @@ public class DatabaseManagerH2 implements DatabaseManager {
 		Connection conn = connectionManager.getConnection();
 
 		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, createScript);
+			PreparedStatement statement = DbUtil.prepareStatement(conn, createScript);
 			statement.execute();
 		} finally {
 			conn.close();
@@ -74,7 +66,7 @@ public class DatabaseManagerH2 implements DatabaseManager {
 		Connection conn = connectionManager.getConnection();
 
 		try {
-			PreparedStatement statement = connectionManager.prepareStatement(conn, createScript);
+			PreparedStatement statement = DbUtil.prepareStatement(conn, createScript);
 			statement.execute();
 		} finally {
 			conn.close();
@@ -86,9 +78,6 @@ public class DatabaseManagerH2 implements DatabaseManager {
 		if (!databaseExists()) {
 			createDatabase();
 		}
-
-		// Load queries into the config
-		configurationManager.deserialise(queries, "h2/queries.conf");
 	}
 
 	@Override

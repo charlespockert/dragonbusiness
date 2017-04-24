@@ -6,6 +6,7 @@ import com.google.inject.Injector;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
@@ -28,6 +29,11 @@ public class DragonBusinessPlugin {
 
 	@Listener
 	public void onServerPreInit(GamePreInitializationEvent event) throws Exception {
+		this.logger.info("Dragon Business pre-initialise");
+	}
+
+	@Listener
+	public void onServerInit(GameInitializationEvent event) throws Exception {
 		this.logger.info("Dragon Business is starting");
 		Injector childInjector = injector.createChildInjector(new DragonBusinessModule());
 		pluginManager = new PluginManager(childInjector);

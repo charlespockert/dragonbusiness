@@ -1,7 +1,5 @@
 package io.github.charlespockert.commands.company;
 
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -12,11 +10,8 @@ import org.spongepowered.api.text.Text;
 
 import io.github.charlespockert.business.Enquiry;
 import io.github.charlespockert.config.MessagesConfig;
-import io.github.charlespockert.data.BusinessRepository;
 
 public class ListEmployeesCommand implements CommandExecutor {
-
-	BusinessRepository businessRepository;
 
 	Enquiry enquiry;
 
@@ -24,9 +19,7 @@ public class ListEmployeesCommand implements CommandExecutor {
 
 	Logger logger;
 
-	public ListEmployeesCommand(BusinessRepository businessRepository, Enquiry enquiry, MessagesConfig messagesConfig,
-			Logger logger) {
-		this.businessRepository = businessRepository;
+	public ListEmployeesCommand(Enquiry enquiry, MessagesConfig messagesConfig, Logger logger) {
 		this.enquiry = enquiry;
 		this.messagesConfig = messagesConfig;
 		this.logger = logger;

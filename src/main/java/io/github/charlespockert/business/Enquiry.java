@@ -1,56 +1,51 @@
 package io.github.charlespockert.business;
 
-import java.sql.SQLException;
 import java.util.List;
 
-import org.apache.commons.lang3.math.Fraction;
 import org.spongepowered.api.command.CommandSource;
 
+import com.google.inject.Inject;
+
 import io.github.charlespockert.config.MessagesConfig;
-import io.github.charlespockert.data.BusinessRepository;
-import io.github.charlespockert.entities.Employee;
+import io.github.charlespockert.data.dao.DaoContainer;
+import io.github.charlespockert.data.dto.CompanyDto;
+import io.github.charlespockert.data.dto.EmployeeDto;
 import io.github.charlespockert.formatting.Formatter;
 
 public class Enquiry {
 
-	private BusinessRepository businessRepository;
+	private DaoContainer daoContainer;
 
 	private Formatter formatter;
 
 	private MessagesConfig messagesConfig;
 
-	public Enquiry(BusinessRepository businessRepository, Formatter formatter, MessagesConfig messagesConfig) {
-		this.businessRepository = businessRepository;
+	@Inject
+	public Enquiry(DaoContainer daoContainer, Formatter formatter, MessagesConfig messagesConfig) {
+		this.daoContainer = daoContainer;
 		this.formatter = formatter;
 		this.messagesConfig = messagesConfig;
 	}
 
-	public void companyDetailedInformation(int companyId) throws Exception {
+	public void companyDetailedInformation(CommandSource src, String companyName) throws Exception {
 
-		businessRepository.companyGet(companyId);
-
-		// PerformanceData perfData =
-		// businessRepository.companyGetPerformanceData(company.getId());
-		List<Employee> employees = businessRepository.employeeGetByCompanyId(companyId);
+		CompanyDto company = daoContainer.companies().getByName(companyName);
+		EmployeeDto ceo = daoContainer.employees().getCompanyOwner(company.id);
 
 		// General company info
-		// formatter.formatText(company, messagesConfig.info.company);
+		formatter.sendText(src, company, messagesConfig.info.company_name);
+		formatter.sendText(src, ceo, messagesConfig.info.owner);
 
 		// Performance data
 		// formatter.formatText(company, messagesConfig.info.company);
 
-		// Employee list
-		for (Employee emp : employees) {
-
-		}
-
-		// formatter.formatPaged(company, messages.getNode("info",
-		// "company").getString());
-
+		// Paginated employee list
+		List<EmployeeDto> employees = daoContainer.employees().getByCompanyId(company.id);
+		formatter.sendList(src, employees, "Employees", messagesConfig.info.employee_info);
 	}
 
 	public void companyListing(CommandSource src, String filter) throws Exception {
-		formatter.sendList(src, businessRepository.companyGetSummary(), messagesConfig.list.heading,
+		formatter.sendList(src, daoContainer.companies().getSummary(filter), messagesConfig.list.heading,
 				messagesConfig.list.item);
 	}
 
