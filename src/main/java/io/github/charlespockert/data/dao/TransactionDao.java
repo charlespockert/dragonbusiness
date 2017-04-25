@@ -22,7 +22,7 @@ public interface TransactionDao {
 
 	public List<TransactionDto> getByPeriodId(int periodId) throws SQLException;
 
-	public int create(UUID employeeId, int companyId, Timestamp date, BigDecimal amount,
-			TransactionType type) throws SQLException;
+	public int create(UUID employeeId, int companyId, Timestamp date, BigDecimal amount, TransactionType type)
+			throws SQLException;
 
 }

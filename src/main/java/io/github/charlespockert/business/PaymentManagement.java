@@ -152,6 +152,35 @@ public class PaymentManagement {
 		return withdrawResult.getResult();
 	}
 
+	public ResultType depositToCompany(UUID employeeId, BigDecimal amount) throws Exception {
+
+		EmployeeDto employee = daoContainer.employees().getById(employeeId);
+		CompanyDto company = daoContainer.companies().getById(employee.company_id);
+
+		String accountName = CompanyUtil.getAccountId(company.name, mainConfig.business.company_account_prefix);
+		Optional<Account> accountOpt = economyService.getOrCreateAccount(accountName);
+
+		// Not found or error creating..
+		if (!accountOpt.isPresent()) {
+			logger.warn(
+					"Failed to deposit {} for company {} on behalf of employee {} the account {} could not be located or created",
+					amount, company.name, employee.name, accountName);
+			return ResultType.FAILED;
+		}
+
+		Account account = accountOpt.get();
+
+		TransactionResult depositResult = account.deposit(economyService.getDefaultCurrency(), amount,
+				Cause.source(this).named("employee", employee).named("company", company).build());
+
+		if (depositResult.getResult() == ResultType.SUCCESS) {
+			daoContainer.transactions().create(employee.uuid, company.id, Timestamp.from(Instant.now()), amount,
+					TransactionType.EmployeeIncome);
+		}
+
+		return depositResult.getResult();
+	}
+
 	public ResultType depositToEmployee(UUID employeeId, BigDecimal amount) throws Exception {
 
 		EmployeeDto employee = daoContainer.employees().getById(employeeId);

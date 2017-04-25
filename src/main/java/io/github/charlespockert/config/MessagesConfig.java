@@ -30,6 +30,9 @@ public class MessagesConfig {
 	@Setting
 	public Info info = new Info();
 
+	@Setting
+	public Period period = new Period();
+
 	@ConfigSerializable
 	public static class General {
 		@Setting
@@ -83,4 +86,15 @@ public class MessagesConfig {
 		@Setting
 		public String employee_info = "<data.name> can no longer meet its financial obligations and has filed for bankruptcy!";
 	}
+
+	@ConfigSerializable
+	public static class Period {
+		@Setting
+		public String period_closed = "Financial period <data> has been closed";
+		@Setting
+		public String top_company = "<data.name> are the front runners in this period with <data.turnover>";
+		@Setting
+		public String no_top_company = "There were no front runners in this financial period";
+	}
+
 }

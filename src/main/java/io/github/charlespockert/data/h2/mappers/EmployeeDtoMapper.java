@@ -7,7 +7,7 @@ import io.github.charlespockert.data.UuidUtil;
 import io.github.charlespockert.data.dto.EmployeeDto;
 import io.github.charlespockert.data.dto.EmployeeRank;
 
-public class EmployeeDtoMapper extends DtoMapper<EmployeeDto> {
+public class EmployeeDtoMapper implements DtoMapper<EmployeeDto> {
 
 	@Override
 	public EmployeeDto map(ResultSet resultSet) throws SQLException {

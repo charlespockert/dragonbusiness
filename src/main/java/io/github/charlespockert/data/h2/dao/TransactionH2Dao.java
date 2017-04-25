@@ -82,6 +82,7 @@ public class TransactionH2Dao extends DaoBase implements TransactionDao {
 	public int create(UUID employeeId, int companyId, Timestamp date, BigDecimal amount, TransactionType type)
 			throws SQLException {
 		try (Connection conn = connectionManager.getConnection()) {
+
 			PreparedStatement statement = DbUtil.prepareStatement(conn,
 					"insert into transaction (uuid, company_id, date, amount, type) VALUES (?, ?, ?, ?, ?)",
 					UuidUtil.asBytes(employeeId), companyId, date, amount, type);

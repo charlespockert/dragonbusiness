@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 import io.github.charlespockert.data.dto.CompanyDto;
 
-public class CompanyDtoMapper extends DtoMapper<CompanyDto> {
+public class CompanyDtoMapper implements DtoMapper<CompanyDto> {
 
 	@Override
 	public CompanyDto map(ResultSet resultSet) throws SQLException {

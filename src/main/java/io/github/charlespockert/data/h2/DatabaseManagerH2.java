@@ -33,15 +33,11 @@ public class DatabaseManagerH2 implements DatabaseManager {
 	public boolean databaseExists() throws SQLException {
 		logger.info("Checking DB schema exists...");
 
-		Connection conn = connectionManager.getConnection();
-
-		try {
-			PreparedStatement statement = DbUtil.prepareStatement(conn, "SELECT * FROM Employee");
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = DbUtil.prepareStatement(conn, "SELECT * FROM version");
 			statement.execute();
 		} catch (SQLException ex) {
 			return false;
-		} finally {
-			conn.close();
 		}
 
 		return true;

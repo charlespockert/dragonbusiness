@@ -1,6 +1,7 @@
 package io.github.charlespockert.business;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.UUID;
 
 import org.spongepowered.api.Server;
@@ -27,8 +28,6 @@ public class CompanyManagement {
 	DragonBusinessPlugin plugin;
 
 	DaoContainer daoContainer;
-
-	// BusinessRepository businessRepository;
 
 	EconomyService economyService;
 
@@ -76,6 +75,12 @@ public class CompanyManagement {
 			break;
 		default:
 			throw new CommandException(formatter.formatText(null, messagesConfig.create.failed));
+		}
+	}
+
+	public void bankruptCompanies() throws Exception {
+		for (CompanyDto company : daoContainer.companies().getAll("")) {
+			bankrupt(company.id);
 		}
 	}
 

@@ -90,22 +90,6 @@ public class CompanyH2Dao extends DaoBase implements CompanyDao {
 	}
 
 	@Override
-	public List<CompanySummaryDto> getSummary(String filter) throws SQLException {
-
-		if (filter == null)
-			filter = "";
-
-		try (Connection conn = connectionManager.getConnection()) {
-			PreparedStatement statement = DbUtil.prepareStatement(conn,
-					"select company.name, employee.name as owner, (select count(*) from employee where employee.company_id = company.id) as employeecount, company.value from company inner join employee on employee.company_id = company.id and employee.rank = 3 and company.name like ?",
-					"%" + filter + "%");
-			List<CompanySummaryDto> summaries = mapper.populateMany(statement, CompanySummaryDto.class);
-
-			return summaries;
-		}
-	}
-
-	@Override
 	public int create(String name, UUID uuid, String employeeName) throws SQLException {
 		try (Connection conn = connectionManager.getConnection()) {
 			conn.setAutoCommit(false);

@@ -21,8 +21,6 @@ public interface CompanyDao {
 
 	public List<CompanyDto> getAll(String filter) throws SQLException;
 
-	public List<CompanySummaryDto> getSummary(String filter) throws SQLException;
-
 	public int create(String name, UUID employeeId, String employeeName) throws SQLException;
 
 	public void update(CompanyDto company) throws SQLException;

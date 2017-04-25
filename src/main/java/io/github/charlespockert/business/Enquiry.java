@@ -45,7 +45,7 @@ public class Enquiry {
 	}
 
 	public void companyListing(CommandSource src, String filter) throws Exception {
-		formatter.sendList(src, daoContainer.companies().getSummary(filter), messagesConfig.list.heading,
+		formatter.sendList(src, daoContainer.companyStats().getSummary(filter), messagesConfig.list.heading,
 				messagesConfig.list.item);
 	}
 

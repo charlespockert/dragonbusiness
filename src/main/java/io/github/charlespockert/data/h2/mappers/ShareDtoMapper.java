@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import io.github.charlespockert.data.UuidUtil;
 import io.github.charlespockert.data.dto.ShareDto;
 
-public class ShareDtoMapper extends DtoMapper<ShareDto> {
+public class ShareDtoMapper implements DtoMapper<ShareDto> {
 
 	@Override
 	public ShareDto map(ResultSet resultSet) throws SQLException {

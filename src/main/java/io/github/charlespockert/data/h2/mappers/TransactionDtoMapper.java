@@ -7,7 +7,7 @@ import io.github.charlespockert.data.UuidUtil;
 import io.github.charlespockert.data.dto.TransactionDto;
 import io.github.charlespockert.data.dto.TransactionType;
 
-public class TransactionDtoMapper extends DtoMapper<TransactionDto> {
+public class TransactionDtoMapper implements DtoMapper<TransactionDto> {
 
 	@Override
 	public TransactionDto map(ResultSet resultSet) throws SQLException {

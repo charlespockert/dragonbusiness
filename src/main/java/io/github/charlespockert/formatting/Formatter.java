@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
@@ -152,7 +153,7 @@ public class Formatter {
 	public PaginationList.Builder formatList(List<?> data, String heading, String itemText) {
 		PaginationList.Builder builder = PaginationList.builder();
 
-		builder.title(getText(heading)).padding(getPadding());
+		builder.title(watermark(getText(heading))).padding(getPadding());
 
 		builder.contents(data.stream().map(listItem -> getText(itemText, listItem)).collect(Collectors.toList()));
 
@@ -164,23 +165,17 @@ public class Formatter {
 	}
 
 	public Text formatText(Object data, String text) {
-		return getText(text, data);
+		return watermark(getText(text, data));
 	}
 
-	public PaginationList.Builder sendPaged(String heading, List<String> lines) {
-		PaginationList.Builder builder = PaginationList.builder();
-
-		builder.title(getText(heading)).padding(getPadding());
-
-		builder.contents(lines.stream().map(line -> getText(line)).collect(Collectors.toList()));
-
-		return builder;
+	public void sendPaged(MessageChannel channel, List<?> data, String heading, String itemText) {
+		formatPaged(data, heading, itemText).build().sendTo(channel);
 	}
 
 	public PaginationList.Builder formatPaged(List<?> data, String heading, String itemText) {
 		PaginationList.Builder builder = PaginationList.builder();
 
-		builder.title(getText(heading)).padding(getPadding());
+		builder.title(watermark(getText(heading))).padding(getPadding());
 
 		builder.contents(data.stream().map(listItem -> getText(itemText, listItem)).collect(Collectors.toList()));
 

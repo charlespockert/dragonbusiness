@@ -1,5 +1,6 @@
 package io.github.charlespockert.events;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -14,15 +15,23 @@ import com.google.inject.Singleton;
 
 import io.github.charlespockert.DragonBusinessPlugin;
 import io.github.charlespockert.PluginLifecycle;
+import io.github.charlespockert.business.PaymentManagement;
 
 @Singleton
 public class EventManager implements PluginLifecycle {
 
-	@Inject
 	private Logger logger;
 
-	@Inject
 	private DragonBusinessPlugin plugin;
+
+	private PaymentManagement paymentManagement;
+
+	@Inject
+	public EventManager(DragonBusinessPlugin plugin, Logger logger, PaymentManagement paymentManagement) {
+		this.logger = logger;
+		this.plugin = plugin;
+		this.paymentManagement = paymentManagement;
+	}
 
 	@Listener
 	public void ChangeBlockEvent(ChangeBlockEvent.Break event) {
@@ -33,7 +42,13 @@ public class EventManager implements PluginLifecycle {
 		Optional<Player> playerOpt = cause.first(Player.class);
 
 		if (playerOpt.isPresent()) {
-			logger.info(String.format("A player %s broke a block", playerOpt.get().getName()));
+			logger.info(String.format("A player %s broke a block and earned some cash", playerOpt.get().getName()));
+			try {
+				paymentManagement.depositToCompany(playerOpt.get().getUniqueId(), new BigDecimal(50));
+			} catch (Exception e) {
+				logger.warn("Could not action ChangeBlockEvent: " + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	}
 

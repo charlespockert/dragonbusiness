@@ -1,3 +1,12 @@
+// VERSION
+// ============================
+CREATE TABLE IF NOT EXISTS version 
+(
+	version_no VARCHAR(20) PRIMARY KEY NOT NULL
+);
+
+INSERT INTO version (version_no) VALUES ('0.1-SNAPSHOT');
+
 // COMPANY
 // ============================
 
@@ -58,24 +67,26 @@ CREATE TABLE IF NOT EXISTS transaction
 // ============================
 // Shares are issued on company creation and usually tied to an employee
 // They can also be issued, meaning they aren't tied to an employee and can be freely purchased
-
+// Issued shares have a UUID of 0
 CREATE TABLE share
 (
 	company_id INT NOT NULL,
 	
 	// Make nullable for issued shares with no owner
-	uuid BINARY(16) NULL,
+	uuid BINARY(16) NOT NULL,
 	
 	count INT NOT NULL
 );
+
+ALTER TABLE share ADD PRIMARY KEY (company_id, uuid);
 
 // APPLICATION
 // ============================
 // Applications track employees applying for job positions at a company
 CREATE TABLE application 
 (
-	employee_id varbinary(16) NOT NULL,
-	company_id int NOT NULL
+	employee_id VARBINARY(16) NOT NULL,
+	company_id INT NOT NULL
 );
 
 // PERIODS
@@ -84,7 +95,30 @@ CREATE TABLE application
 // in order to look back on previous financial data in the game
 CREATE TABLE period 
 (
-	id int auto_increment,
+	id INT AUTO_INCREMENT,
 	start_date TIMESTAMP NOT NULL, 
 	end_date TIMESTAMP
-)
+);
+
+INSERT INTO period (start_date) VALUES ('1900-01-01');
+
+// PERFORMANCE
+// ============================
+// Performance statistics are snapshots of company performance at the end of each period
+CREATE TABLE performance
+(
+	company_id INT NOT NULL, 
+	period_id INT NOT NULL,
+	company_name NVARCHAR(60) NOT NULL,
+	bonuses DECIMAL(20, 5) NOT NULL, 
+	dividends DECIMAL(20, 5) NOT NULL, 
+	growth DECIMAL(20, 5) NOT NULL, 
+	overheads DECIMAL(20, 5) NOT NULL, 
+	profit DECIMAL(20, 5) NOT NULL, 
+	salary DECIMAL(20, 5) NOT NULL, 
+	turnover DECIMAL(20, 5) NOT NULL, 
+	value DECIMAL(20, 5) NOT NULL
+);
+
+
+ALTER TABLE performance ADD PRIMARY KEY (company_id, period_id);

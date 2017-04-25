@@ -10,4 +10,6 @@ public interface DaoContainer {
 	public TransactionDao transactions();
 
 	public EmployeeDao employees();
+
+	public CompanyStatisticsDao companyStats();
 }

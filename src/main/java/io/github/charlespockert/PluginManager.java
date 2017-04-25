@@ -10,10 +10,9 @@ import org.spongepowered.api.service.economy.EconomyService;
 
 import com.google.inject.Injector;
 
-import io.github.charlespockert.business.FiscalPeriodTaskRunner;
+import io.github.charlespockert.business.PeriodicTaskRunner;
 import io.github.charlespockert.commands.CommandBuilder;
 import io.github.charlespockert.config.ConfigurationManager;
-import io.github.charlespockert.data.ConnectionManager;
 import io.github.charlespockert.data.DatabaseManager;
 import io.github.charlespockert.events.EventManager;
 
@@ -37,12 +36,11 @@ public class PluginManager implements PluginLifecycle {
 
 		// Configuration is required first, then connections, then DB then the
 		// rest...
-		components.add((PluginLifecycle) injector.getInstance(ConfigurationManager.class));
-		components.add((PluginLifecycle) injector.getInstance(ConnectionManager.class));
-		components.add((PluginLifecycle) injector.getInstance(DatabaseManager.class));
-		components.add((PluginLifecycle) injector.getInstance(EventManager.class));
-		components.add((PluginLifecycle) injector.getInstance(CommandBuilder.class));
-		components.add((PluginLifecycle) injector.getInstance(FiscalPeriodTaskRunner.class));
+		components.add(injector.getInstance(ConfigurationManager.class));
+		components.add(injector.getInstance(DatabaseManager.class));
+		components.add(injector.getInstance(EventManager.class));
+		components.add(injector.getInstance(CommandBuilder.class));
+		components.add(injector.getInstance(PeriodicTaskRunner.class));
 	}
 
 	@Override

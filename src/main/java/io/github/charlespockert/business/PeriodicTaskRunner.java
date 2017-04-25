@@ -12,7 +12,7 @@ import io.github.charlespockert.business.tasks.CloseFiscalPeriod;
 import io.github.charlespockert.business.tasks.PaySalary;
 import io.github.charlespockert.config.MainConfig;
 
-public class FiscalPeriodTaskRunner implements PluginLifecycle {
+public class PeriodicTaskRunner implements PluginLifecycle {
 
 	private Task.Builder taskBuilder = Task.builder();
 
@@ -29,7 +29,7 @@ public class FiscalPeriodTaskRunner implements PluginLifecycle {
 	private Task closeFiscalPeriodTask;
 
 	@Inject
-	public FiscalPeriodTaskRunner(DragonBusinessPlugin plugin, MainConfig mainConfig,
+	public PeriodicTaskRunner(DragonBusinessPlugin plugin, MainConfig mainConfig,
 			CloseFiscalPeriod closeFiscalPeriod, PaySalary paySalary) {
 		this.mainConfig = mainConfig;
 		this.plugin = plugin;
