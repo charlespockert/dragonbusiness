@@ -1,6 +1,5 @@
 package io.github.charlespockert.data.h2.dao;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,17 +10,21 @@ import java.util.List;
 
 import org.slf4j.Logger;
 
+import io.github.charlespockert.config.MainConfig;
 import io.github.charlespockert.data.ConnectionManager;
 import io.github.charlespockert.data.dao.PeriodDao;
 import io.github.charlespockert.data.dto.PeriodDto;
-import io.github.charlespockert.data.dto.TransactionType;
 import io.github.charlespockert.data.h2.DatabaseMapper;
 import io.github.charlespockert.data.h2.DbUtil;
 
 public class PeriodH2Dao extends DaoBase implements PeriodDao {
 
-	public PeriodH2Dao(ConnectionManager connectionManager, Logger logger, DatabaseMapper mapper) {
+	MainConfig mainConfig;
+
+	public PeriodH2Dao(ConnectionManager connectionManager, Logger logger, DatabaseMapper mapper,
+			MainConfig mainConfig) {
 		super(connectionManager, logger, mapper);
+		this.mainConfig = mainConfig;
 	}
 
 	@Override
@@ -74,7 +77,9 @@ public class PeriodH2Dao extends DaoBase implements PeriodDao {
 			closeStatement.execute();
 
 			PreparedStatement newStatement = DbUtil.prepareStatement(conn,
-					"insert into period (start_date, end_date) values (?, NULL)", ts);
+					"insert into period (name, start_date, end_date) values (?, ?, NULL)",
+					generateNextPeriodName(periodId), ts);
+
 			newStatement.executeUpdate();
 			ResultSet updateResult = newStatement.getGeneratedKeys();
 			updateResult.next();
@@ -107,5 +112,9 @@ public class PeriodH2Dao extends DaoBase implements PeriodDao {
 		} catch (SQLException e) {
 			throw e;
 		}
+	}
+
+	private String generateNextPeriodName(int periodId) {
+		return mainConfig.business.fiscal_periods.get(periodId % mainConfig.business.fiscal_periods.size());
 	}
 }

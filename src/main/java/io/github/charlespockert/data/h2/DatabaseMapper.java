@@ -24,6 +24,7 @@ public class DatabaseMapper {
 		mappers.put(TransactionDto.class, new TransactionDtoMapper());
 		mappers.put(PeriodDto.class, new PeriodDtoMapper());
 		mappers.put(CompanyPerformanceDto.class, new CompanyPerformanceDtoMapper());
+		mappers.put(CompanyIdentifierDto.class, new CompanyIdentifierDtoMapper());
 	}
 
 	public <T> T populateDto(ResultSet resultSet, Class<T> clazz) throws SQLException {

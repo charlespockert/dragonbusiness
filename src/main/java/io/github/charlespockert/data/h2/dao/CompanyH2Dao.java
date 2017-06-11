@@ -13,7 +13,7 @@ import io.github.charlespockert.data.ConnectionManager;
 import io.github.charlespockert.data.UuidUtil;
 import io.github.charlespockert.data.dao.CompanyDao;
 import io.github.charlespockert.data.dto.CompanyDto;
-import io.github.charlespockert.data.dto.CompanySummaryDto;
+import io.github.charlespockert.data.dto.CompanyIdentifierDto;
 import io.github.charlespockert.data.dto.EmployeeDto;
 import io.github.charlespockert.data.dto.EmployeeRank;
 import io.github.charlespockert.data.h2.DatabaseMapper;
@@ -138,6 +138,14 @@ public class CompanyH2Dao extends DaoBase implements CompanyDao {
 					"select company.* from company INNER JOIN employee ON employee.company_id = company.id where employee.uuid = ?",
 					UuidUtil.asBytes(uuid));
 			return mapper.populateSingle(statement, CompanyDto.class);
+		}
+	}
+
+	@Override
+	public List<CompanyIdentifierDto> getIdentifiers() throws SQLException {
+		try (Connection conn = connectionManager.getConnection()) {
+			PreparedStatement statement = DbUtil.prepareStatement(conn, "select id, name from company");
+			return mapper.populateMany(statement, CompanyIdentifierDto.class);
 		}
 	}
 }

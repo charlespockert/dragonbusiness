@@ -96,11 +96,12 @@ CREATE TABLE application
 CREATE TABLE period 
 (
 	id INT AUTO_INCREMENT,
+	name varchar(50) NOT NULL,
 	start_date TIMESTAMP NOT NULL, 
 	end_date TIMESTAMP
 );
 
-INSERT INTO period (start_date) VALUES ('1900-01-01');
+INSERT INTO period (name, start_date) VALUES ('Opening', '1900-01-01');
 
 // PERFORMANCE
 // ============================

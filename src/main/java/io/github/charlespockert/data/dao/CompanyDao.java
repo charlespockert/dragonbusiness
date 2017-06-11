@@ -11,6 +11,8 @@ public interface CompanyDao {
 
 	public boolean exists(int companyId) throws SQLException;
 
+	public List<CompanyIdentifierDto> getIdentifiers() throws SQLException;
+
 	public EmployeeDto getOwner(int companyId) throws SQLException;
 
 	public CompanyDto getByName(String name) throws SQLException;

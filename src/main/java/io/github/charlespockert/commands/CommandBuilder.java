@@ -14,6 +14,7 @@ import io.github.charlespockert.PluginLifecycle;
 import io.github.charlespockert.commands.admin.DatabaseCommand;
 import io.github.charlespockert.commands.admin.ReloadConfigCommand;
 import io.github.charlespockert.commands.company.RootCommand;
+import io.github.charlespockert.commands.elements.ElementFactory;
 import io.github.charlespockert.commands.company.DetailedInfoCommand;
 import io.github.charlespockert.commands.company.CreateCompanyCommand;
 import io.github.charlespockert.commands.company.ListCompaniesCommand;
@@ -29,6 +30,9 @@ public class CommandBuilder implements PluginLifecycle {
 
 	@Inject
 	private DatabaseCommand databaseCommand;
+
+	@Inject
+	private ElementFactory elementFactory;
 
 	private void buildDatabaseCommands(Builder parent) {
 		// Cmd def - /c database recreate
@@ -65,13 +69,13 @@ public class CommandBuilder implements PluginLifecycle {
 		// Cmd def - /c list <opt:companyname>
 		parent.child(CommandSpec.builder().description(Text.of("List all companies"))
 				.extendedDescription(Text.of("Lists all companies in the company index")).executor(listCompaniesCommand)
-				.arguments(GenericArguments.optionalWeak(GenericArguments.string(Text.of("companyname")))).build(),
-				"list");
+				.arguments(GenericArguments.optionalWeak(GenericArguments.string(Text.of("filter")))).build(), "list");
 
 		// Cmd def - /c info <companyname>
 		parent.child(CommandSpec.builder().description(Text.of("Detailed company information"))
 				.extendedDescription(Text.of("Shows detailed information about a company")).executor(companyInfoCommand)
-				.arguments(GenericArguments.string(Text.of("companyname"))).build(), "info");
+				.arguments(GenericArguments.onlyOne(elementFactory.createCompanyNameElement(Text.of("company"))))
+				.build(), "info");
 	}
 
 	@Override

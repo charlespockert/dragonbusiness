@@ -15,16 +15,17 @@ import com.google.inject.Inject;
 import io.github.charlespockert.business.CompanyManagement;
 import io.github.charlespockert.config.MessagesConfig;
 
-public class CreateCompanyCommand implements CommandExecutor {
-
-	private CompanyManagement companyManagement;
+public class EmploymentApplicationCommand implements CommandExecutor {
 
 	private MessagesConfig messagesConfig;
+
+	private CompanyManagement companyManagement;
 
 	private Logger logger;
 
 	@Inject
-	public CreateCompanyCommand(CompanyManagement companyManagement, MessagesConfig messagesConfig, Logger logger) {
+	public EmploymentApplicationCommand(CompanyManagement companyManagement, MessagesConfig messagesConfig,
+			Logger logger) {
 		this.companyManagement = companyManagement;
 		this.messagesConfig = messagesConfig;
 		this.logger = logger;
@@ -32,17 +33,15 @@ public class CreateCompanyCommand implements CommandExecutor {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-
 		try {
 			String companyName = args.<String>getOne("companyname").get();
 
 			if (src instanceof Player) {
-
 				// Build a cause from the player
 				Cause cause = Cause.builder().owner((Player) src).named("companyname", companyName).build();
 
 				// Try to create
-				companyManagement.create(cause);
+				companyManagement.applyForPosition(cause);
 			} else {
 				throw new CommandException(Text.of(messagesConfig.general.player_only_command));
 			}
@@ -55,4 +54,5 @@ public class CreateCompanyCommand implements CommandExecutor {
 
 		return CommandResult.success();
 	}
+
 }

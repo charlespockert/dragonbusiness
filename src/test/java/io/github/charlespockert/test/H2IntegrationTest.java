@@ -25,6 +25,7 @@ import io.github.charlespockert.data.ConnectionManager;
 import io.github.charlespockert.data.DatabaseManager;
 import io.github.charlespockert.data.dao.DaoContainer;
 import io.github.charlespockert.data.dto.CompanyDto;
+import io.github.charlespockert.data.dto.CompanyIdentifierDto;
 import io.github.charlespockert.data.dto.CompanyPerformanceDto;
 import io.github.charlespockert.data.dto.EmployeeDto;
 import io.github.charlespockert.data.dto.EmployeeRank;
@@ -85,7 +86,7 @@ public class H2IntegrationTest extends TestCase {
 
 		databaseMapper = new DatabaseMapper();
 
-		dao = new DaoH2Container(connectionManager, mockLogger, databaseMapper);
+		dao = new DaoH2Container(connectionManager, mockLogger, databaseMapper, mainConfig);
 
 		databaseManager = new DatabaseManagerH2(connectionManager, mockAssetGrabber, mockLogger);
 		// Delete and recreate the DB each time so we have expected state
@@ -126,6 +127,11 @@ public class H2IntegrationTest extends TestCase {
 		assertEquals(0, company.sharesIssued);
 		assertEquals("charlie company", company.name);
 		assertTrue(company.value.compareTo(BigDecimal.ZERO) == 0);
+
+		// Test company Identifiers
+		List<CompanyIdentifierDto> ids = dao.companies().getIdentifiers();
+
+		assertEquals(2, ids.size());
 	}
 
 	@Test

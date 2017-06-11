@@ -85,6 +85,10 @@ public class MessagesConfig {
 		public String owner = "CEO: <data.name>";
 		@Setting
 		public String employee_info = "<data.name> can no longer meet its financial obligations and has filed for bankruptcy!";
+		@Setting
+		public String employee_list_title = "Employees";
+		@Setting
+		public String page_title = "Detailed Information";
 	}
 
 	@ConfigSerializable

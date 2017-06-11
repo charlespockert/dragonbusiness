@@ -12,6 +12,7 @@ import com.google.inject.Inject;
 
 import io.github.charlespockert.business.Enquiry;
 import io.github.charlespockert.config.MessagesConfig;
+import io.github.charlespockert.data.dto.CompanyDto;
 
 public class DetailedInfoCommand implements CommandExecutor {
 
@@ -31,10 +32,10 @@ public class DetailedInfoCommand implements CommandExecutor {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 
-		String companyName = args.<String>getOne("companyname").get();
+		CompanyDto company = args.<CompanyDto>getOne("company").get();
 
 		try {
-			enquiry.companyDetailedInformation(src, companyName);
+			enquiry.companyDetailedInformation(src, company.id);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new CommandException(Text.of(messagesConfig.general.error));

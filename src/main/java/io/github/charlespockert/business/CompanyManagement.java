@@ -52,7 +52,7 @@ public class CompanyManagement {
 	}
 
 	// Company status
-	public void companyCreate(Cause context) throws Exception {
+	public void create(Cause context) throws Exception {
 		String companyName = context.get("companyname", String.class).get();
 		Player player = context.first(Player.class).get();
 
@@ -95,38 +95,19 @@ public class CompanyManagement {
 		}
 	}
 
-	// Shares
-	public void playerBuyShares(int companyId, UUID player, int amount) {
-		// Check if there are any shares for sale
-		// businessRepository.companyGetByEmployeeId(uuid)
-	}
-
-	public void playerSellShares(int companyId, UUID player, int amount) {
-
-	}
-
 	// Employees
 
-	public void companyApplyForPosition() {
+	public void applyForPosition(Cause context) {
+		String companyName = context.get("companyname", String.class).get();
+		Player player = context.first(Player.class).get();
 
 	}
 
-	public void companyAcceptCandidate(int companyId, UUID player, UUID recruiter) {
+	public void acceptCandidate(int companyId, UUID player, UUID recruiter) {
 
 	}
 
-	public void companyFireEmployee(int companyId, UUID player) {
+	public void fireEmployee(int companyId, UUID player) {
 
 	}
-
-	// Jobs
-
-	public void employeeCompleteJob(UUID player, int companyId) {
-
-	}
-
-	public void companyReceiveCash(float amount, int companyId, UUID player) {
-
-	}
-
 }

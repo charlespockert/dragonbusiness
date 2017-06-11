@@ -4,5 +4,5 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public interface DtoMapper<T> {
-	public abstract T map(ResultSet resultSet) throws SQLException;
+	public T map(ResultSet resultSet) throws SQLException;
 }

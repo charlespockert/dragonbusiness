@@ -146,8 +146,15 @@ public class Formatter {
 		return Text.of(texts.toArray());
 	}
 
-	public void sendList(MessageReceiver messageReceiver, List<?> data, String heading, String itemText) {
-		formatList(data, heading, itemText).sendTo(messageReceiver);
+	public Text formatText(Object data, String text) {
+		return formatText(data, text, true);
+	}
+
+	public Text formatText(Object data, String text, boolean showWatermark) {
+		if (showWatermark)
+			return watermark(getText(text, data));
+
+		return getText(text, data);
 	}
 
 	public PaginationList.Builder formatList(List<?> data, String heading, String itemText) {
@@ -160,26 +167,25 @@ public class Formatter {
 		return builder;
 	}
 
+	public void sendList(MessageReceiver messageReceiver, List<?> data, String heading, String itemText) {
+		formatList(data, heading, itemText).sendTo(messageReceiver);
+	}
+
 	public void sendText(MessageReceiver messageReceiver, Object data, String text) {
 		messageReceiver.sendMessage(watermark(getText(text, data)));
 	}
 
-	public Text formatText(Object data, String text) {
-		return watermark(getText(text, data));
-	}
-
-	public void sendPaged(MessageChannel channel, List<?> data, String heading, String itemText) {
-		formatPaged(data, heading, itemText).build().sendTo(channel);
-	}
-
-	public PaginationList.Builder formatPaged(List<?> data, String heading, String itemText) {
+	public PaginationList.Builder formatPaged(String heading, Text... texts) {
 		PaginationList.Builder builder = PaginationList.builder();
 
 		builder.title(watermark(getText(heading))).padding(getPadding());
-
-		builder.contents(data.stream().map(listItem -> getText(itemText, listItem)).collect(Collectors.toList()));
+		builder.contents(texts);
 
 		return builder;
+	}
+
+	public void sendPaged(MessageReceiver messageReceiver, String heading, Text... texts) {
+		formatPaged(heading, texts).build().sendTo(messageReceiver);
 	}
 
 	public Text watermark(Text text) {

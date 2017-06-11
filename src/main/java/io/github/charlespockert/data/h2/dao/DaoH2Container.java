@@ -3,6 +3,7 @@ package io.github.charlespockert.data.h2.dao;
 import org.slf4j.Logger;
 import com.google.inject.Inject;
 
+import io.github.charlespockert.config.MainConfig;
 import io.github.charlespockert.data.ConnectionManager;
 import io.github.charlespockert.data.dao.CompanyDao;
 import io.github.charlespockert.data.dao.CompanyStatisticsDao;
@@ -58,9 +59,10 @@ public class DaoH2Container implements DaoContainer {
 	}
 
 	@Inject
-	public DaoH2Container(ConnectionManager connectionManager, Logger logger, DatabaseMapper mapper) {
+	public DaoH2Container(ConnectionManager connectionManager, Logger logger, DatabaseMapper mapper,
+			MainConfig mainConfig) {
 		this.companies = new CompanyH2Dao(connectionManager, logger, mapper);
-		this.periods = new PeriodH2Dao(connectionManager, logger, mapper);
+		this.periods = new PeriodH2Dao(connectionManager, logger, mapper, mainConfig);
 		this.shares = new ShareH2Dao(connectionManager, logger, mapper);
 		this.transactions = new TransactionH2Dao(connectionManager, logger, mapper);
 		this.employees = new EmployeeH2Dao(connectionManager, logger, mapper);

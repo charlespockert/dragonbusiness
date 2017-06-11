@@ -34,7 +34,7 @@ public class ListCompaniesCommand implements CommandExecutor {
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 
 		try {
-			Optional<String> filterOpt = args.getOne("companyname");
+			Optional<String> filterOpt = args.getOne("filter");
 			enquiry.companyListing(src, filterOpt.orElseGet(() -> null));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

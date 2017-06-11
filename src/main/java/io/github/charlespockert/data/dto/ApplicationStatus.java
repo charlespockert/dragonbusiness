@@ -1,11 +1,11 @@
 package io.github.charlespockert.data.dto;
 
-public enum TransactionType {
-	Salary(0), Bonus(1), Dividend(2), EmployeeIncome(3);
+public enum ApplicationStatus {
+	Requested(0), Accepted(1), Rejected(2);
 
 	private final int value;
 
-	private TransactionType(int value) {
+	private ApplicationStatus(int value) {
 		this.value = value;
 	}
 
